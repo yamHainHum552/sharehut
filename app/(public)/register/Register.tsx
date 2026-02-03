@@ -14,9 +14,11 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const register = async () => {
     setError("");
+    setLoading(true);
     const res = await api("/auth/register", "POST", {
       name,
       email,
@@ -28,6 +30,7 @@ export default function RegisterPage() {
     } else {
       setError(res.error || "Registration failed");
     }
+    setLoading(false);
   };
 
   return (
@@ -68,7 +71,7 @@ export default function RegisterPage() {
             {error && <p className="text-sm text-red-500">{error}</p>}
 
             <Button className="w-full" onClick={register}>
-              Create Account
+              {loading ? "Creating Account..." : "Create Account"}
             </Button>
           </div>
 

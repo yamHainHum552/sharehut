@@ -14,9 +14,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const login = async () => {
     setError("");
+    setLoading(true);
     const res = await api("/auth/login", "POST", { email, password });
 
     if (res.token) {
@@ -25,6 +27,7 @@ export default function LoginPage() {
     } else {
       setError(res.error || "Login failed");
     }
+    setLoading(false);
   };
 
   const googleLogin = () => {
@@ -64,7 +67,7 @@ export default function LoginPage() {
             {error && <p className="text-sm text-red-500">{error}</p>}
 
             <Button className="w-full" onClick={login}>
-              Login
+              {loading ? "Logging in..." : "Login"}
             </Button>
 
             {/* Divider */}
