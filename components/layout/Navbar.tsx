@@ -28,14 +28,13 @@ const drawerVariants = {
     x: 0,
     transition: {
       duration: 0.28,
-      ease: "easeOut",
       when: "beforeChildren",
       staggerChildren: 0.06,
     },
   },
   exit: {
     x: "100%",
-    transition: { duration: 0.2, ease: "easeIn" },
+    transition: { duration: 0.2 },
   },
 };
 
@@ -44,7 +43,7 @@ const itemVariants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.25, ease: "easeOut" },
+    transition: { duration: 0.25 },
   },
   exit: { opacity: 0, x: -16 },
 };
@@ -175,7 +174,6 @@ export default function Navbar() {
                 shadow-2xl
                 flex flex-col
               "
-              variants={drawerVariants}
               initial="hidden"
               animate="visible"
               exit="exit"

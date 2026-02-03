@@ -67,7 +67,7 @@ export default function ProfilePage() {
       </header>
 
       {/* Account Info */}
-      <Card className="mb-6">
+      <Card>
         <h2 className="mb-4 text-lg font-semibold text-white">
           Account Information
         </h2>
@@ -88,7 +88,7 @@ export default function ProfilePage() {
       </Card>
 
       {/* Security */}
-      <Card className="mb-6">
+      <Card>
         <h2 className="mb-4 text-lg font-semibold text-white">Security</h2>
 
         <div className="space-y-4">
@@ -100,9 +100,7 @@ export default function ProfilePage() {
               </p>
             </div>
 
-            <Button variant="secondary" disabled>
-              Change Password
-            </Button>
+            <Button variant="secondary">Change Password</Button>
           </div>
         </div>
       </Card>
