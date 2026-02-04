@@ -1,16 +1,69 @@
 import Navbar from "@/components/layout/Navbar";
-import "./globals.css";
 import Footer from "@/components/layout/Footer";
+import "./globals.css";
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: "ShareHut",
-  description: "Secure real-time text sharing",
+export const metadata: Metadata = {
+  title: {
+    default: "ShareHut — Secure Real-Time Text Sharing",
+    template: "%s | ShareHut",
+  },
+  description:
+    "ShareHut lets you securely create rooms and collaborate with others in real time. Fast, private, and reliable text sharing built for teams and individuals.",
+  applicationName: "ShareHut",
+  generator: "Next.js",
+  keywords: [
+    "real-time collaboration",
+    "secure text sharing",
+    "online collaboration tool",
+    "private rooms",
+    "team collaboration",
+    "ShareHut",
+  ],
+  authors: [{ name: "ShareHut Team" }],
+  creator: "ShareHut",
+  publisher: "ShareHut",
+  metadataBase: new URL("https://sharehut-two.vercel.app"),
+
+  alternates: {
+    canonical: "/",
+  },
+
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
+
   manifest: "/site.webmanifest",
+
+  openGraph: {
+    title: "ShareHut — Secure Real-Time Text Sharing",
+    description:
+      "Create secure rooms and collaborate instantly with ShareHut. Built for speed, privacy, and real-time teamwork.",
+    url: "https://sharehut.vercel.app",
+    siteName: "ShareHut",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "ShareHut — Secure Real-Time Text Sharing",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "ShareHut — Secure Real-Time Text Sharing",
+    description: "Create secure rooms and collaborate instantly with ShareHut.",
+    images: ["/og-image.png"],
+    creator: "@sharehut", // optional
+  },
+
+  category: "technology",
 };
 
 export default function RootLayout({

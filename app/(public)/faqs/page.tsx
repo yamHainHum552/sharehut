@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     title: "ShareHut FAQ",
     description:
       "Answers to frequently asked questions about ShareHut and how real-time text sharing works.",
-    url: "https://sharehut.vercel.app/faq",
+    url: "https://sharehut-two.vercel.app/faqs",
     siteName: "ShareHut",
     type: "website",
   },

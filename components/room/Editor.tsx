@@ -24,7 +24,7 @@ export default function Editor({
   const [text, setText] = useState("");
   const [users, setUsers] = useState<User[]>([]);
   const [isOwner, setIsOwner] = useState(false);
-  const [code, setCode] = useState(roomCode);
+  const [code, setCode] = useState(roomCode?.trim());
 
   /**
    * 🔐 Fetch room meta (OWNER CHECK + ROOM CODE)
