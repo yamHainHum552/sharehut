@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { BACKEND_URL } from "@/config/constants";
 
 import { api } from "@/lib/api";
 import { setToken } from "@/lib/auth";
@@ -13,12 +14,14 @@ import Card from "@/components/ui/Card";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const login = async () => {
     setError("");
     setLoading(true);
+
     const res = await api("/auth/login", "POST", { email, password });
 
     if (res.token) {
@@ -27,12 +30,12 @@ export default function LoginPage() {
     } else {
       setError(res.error || "Login failed");
     }
+
     setLoading(false);
   };
 
   const googleLogin = () => {
-    // Backend OAuth endpoint
-    window.location.href = "http://localhost:4000/api/auth/google";
+    window.location.href = `${BACKEND_URL}/api/auth/google`;
   };
 
   return (
@@ -57,12 +60,23 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            <Input
-              placeholder="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            {/* Password with eye toggle */}
+            <div className="relative">
+              <Input
+                placeholder="Password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </button>
+            </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
@@ -83,7 +97,28 @@ export default function LoginPage() {
               className="w-full flex items-center justify-center gap-3"
               onClick={googleLogin}
             >
-              <span className="text-lg">🔒</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 48 48"
+                className="h-5 w-5 mr-2"
+              >
+                <path
+                  fill="#EA4335"
+                  d="M24 9.5c3.1 0 5.9 1.1 8.1 2.9l6-6C34.6 3.1 29.6 1 24 1 14.7 1 6.6 6.9 3.1 15.1l7 5.4C11.6 13.5 17.2 9.5 24 9.5z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3.1-2.3 5.7-4.8 7.5l7 5.4c4.1-3.8 6.6-9.4 6.6-17.4z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M10.1 28.3c-.8-2.4-1.3-4.9-1.3-7.3s.5-4.9 1.3-7.3l-7-5.4C1.5 12.5 0 17.1 0 21.9s1.5 9.4 4.1 13.6l6-4.8z"
+                />
+                <path
+                  fill="#4285F4"
+                  d="M24 47c6.5 0 12-2.1 16-5.8l-7-5.4c-2 1.4-4.6 2.2-9 2.2-6.8 0-12.4-4-14.9-9.7l-7 5.4C6.6 41.1 14.7 47 24 47z"
+                />
+              </svg>
               Continue with Google
             </Button>
           </div>

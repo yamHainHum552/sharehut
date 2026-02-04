@@ -1,4 +1,5 @@
-const API_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api`;
+import { BACKEND_URL } from "@/config/constants";
+const API_URL = `${BACKEND_URL}/api`;
 
 export const api = async (
   path: string,

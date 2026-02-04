@@ -22,7 +22,6 @@ export default function ProfilePage() {
     const fetchProfile = async () => {
       try {
         const res = await api("/auth/me", "GET", undefined, getToken()!);
-        console.log(res);
         setUser(res);
       } catch {
         setError("Failed to load profile");

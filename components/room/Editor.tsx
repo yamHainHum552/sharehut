@@ -62,7 +62,6 @@ export default function Editor({
     }
 
     const joinRoom = () => {
-      console.log("Joining socket room:", roomId);
       socket.emit("join-room", { roomId });
     };
 
