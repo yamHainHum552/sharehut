@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Profile from "./Profile";
 
 export const metadata: Metadata = {
-  title: "Profile | ShareHut",
+  title: "Profile",
   description:
     "Manage your ShareHut profile, account settings, and security preferences.",
   robots: {

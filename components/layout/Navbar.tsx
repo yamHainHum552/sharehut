@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Variants } from "framer-motion";
 
 import Button from "../ui/Button";
 import { isLoggedIn, logout } from "@/lib/auth";
@@ -16,36 +17,45 @@ const PUBLIC_LINKS = [
 
 const AUTH_LINKS = [
   { name: "Dashboard", href: "/dashboard" },
-  { name: "My Rooms", href: "/myrooms" },
+  { name: "Rooms", href: "/myrooms" },
   { name: "Profile", href: "/profile" },
 ];
 
 /* ---------------- ANIMATIONS ---------------- */
 
-const drawerVariants = {
+const drawerVariants: Variants = {
   hidden: { x: "100%" },
   visible: {
     x: 0,
     transition: {
-      duration: 0.28,
+      duration: 0.32,
+      ease: [0.16, 1, 0.3, 1], // cubic-bezier (professional)
       when: "beforeChildren",
       staggerChildren: 0.06,
     },
   },
   exit: {
     x: "100%",
-    transition: { duration: 0.2 },
+    transition: {
+      duration: 0.25,
+      ease: [0.4, 0, 0.2, 1],
+    },
   },
 };
 
-const itemVariants = {
-  hidden: { opacity: 0, x: -24 },
+const itemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    x: -16,
+  },
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.25 },
+    transition: {
+      duration: 0.22,
+      ease: [0.16, 1, 0.3, 1],
+    },
   },
-  exit: { opacity: 0, x: -16 },
 };
 
 /* ---------------- COMPONENT ---------------- */
@@ -63,7 +73,7 @@ export default function Navbar() {
     setAuthReady(true);
   }, []);
 
-  /* Lock body scroll safely */
+  /* Lock body scroll */
   useEffect(() => {
     if (mobileOpen) {
       bodyOverflowRef.current = document.body.style.overflow;
@@ -77,7 +87,7 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
-  /* Close on ESC */
+  /* ESC close */
   useEffect(() => {
     if (!mobileOpen) return;
 
@@ -98,11 +108,15 @@ export default function Navbar() {
   const LINKS = loggedIn ? AUTH_LINKS : PUBLIC_LINKS;
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-neutral-800 bg-neutral-950/80 backdrop-blur">
+    <nav className="sticky top-0 z-50 border-b border-neutral-800/70 bg-neutral-950/75 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
         {/* Logo */}
-        <Link href="/" className="text-xl font-bold text-white">
-          ShareHut
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-lg font-semibold tracking-tight text-white"
+        >
+          <span>ShareHut</span>
+          <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
         </Link>
 
         {/* Desktop Nav */}
@@ -111,7 +125,7 @@ export default function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className="text-sm text-neutral-400 hover:text-white transition"
+              className="text-sm font-medium text-neutral-400 hover:text-white transition"
             >
               {link.name}
             </Link>
@@ -119,9 +133,9 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Auth */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
           {!authReady ? (
-            <div className="h-10 w-24 animate-pulse rounded-lg bg-neutral-800" />
+            <div className="h-9 w-24 animate-pulse rounded-lg bg-neutral-800" />
           ) : !loggedIn ? (
             <>
               <Link href="/login">
@@ -138,12 +152,12 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Mobile Button */}
+        {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileOpen(true)}
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav"
-          className="md:hidden p-2 text-2xl text-neutral-300 hover:text-white"
+          className="md:hidden rounded-lg p-2 text-neutral-300 hover:bg-neutral-800 hover:text-white transition"
         >
           ☰
         </button>
@@ -155,7 +169,7 @@ export default function Navbar() {
           <>
             {/* Backdrop */}
             <motion.div
-              className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm"
               onClick={() => setMobileOpen(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -167,25 +181,23 @@ export default function Navbar() {
               id="mobile-nav"
               className="
                 fixed inset-y-0 right-0 z-50
-                w-[85%] max-w-sm
-                bg-neutral-950 bg-gradient-to-b from-neutral-950 to-neutral-900
+                w-[88%] max-w-sm
+                bg-neutral-950
                 border-l border-neutral-800
                 p-6
                 shadow-2xl
                 flex flex-col
               "
+              variants={drawerVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
             >
               {/* Header */}
               <div className="mb-8 flex items-center justify-between">
-                <span className="text-sm font-semibold tracking-widest text-neutral-400">
-                  NAVIGATION
-                </span>
                 <button
                   onClick={() => setMobileOpen(false)}
-                  className="text-2xl text-neutral-400 hover:text-white"
+                  className="rounded-lg p-1 text-neutral-400 hover:bg-neutral-800 hover:text-white transition"
                 >
                   ✕
                 </button>
@@ -194,10 +206,10 @@ export default function Navbar() {
               {/* Nav Links */}
               <motion.nav
                 className="
-                  flex flex-col gap-5
-                  rounded-2xl
-                  bg-neutral-900/95
-                  p-4
+                  flex flex-col gap-1
+                  rounded-xl
+                  bg-neutral-900
+                  p-2
                   ring-1 ring-neutral-800
                 "
               >
@@ -207,8 +219,8 @@ export default function Navbar() {
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
                       className="
-                        block rounded-lg px-3 py-2
-                        text-xl font-medium
+                        block rounded-lg px-4 py-3
+                        text-base font-medium
                         text-neutral-200
                         hover:bg-neutral-800 hover:text-white
                         transition
@@ -220,7 +232,7 @@ export default function Navbar() {
                 ))}
               </motion.nav>
 
-              {/* Auth Section */}
+              {/* Auth */}
               <div className="mt-auto pt-8 border-t border-neutral-800">
                 {!authReady ? null : !loggedIn ? (
                   <motion.div
@@ -230,13 +242,13 @@ export default function Navbar() {
                     <Link href="/login" onClick={() => setMobileOpen(false)}>
                       <Button
                         variant="secondary"
-                        className="w-full py-4 text-lg"
+                        className="w-full py-4 text-base"
                       >
                         Login
                       </Button>
                     </Link>
                     <Link href="/register" onClick={() => setMobileOpen(false)}>
-                      <Button className="w-full py-4 text-lg">
+                      <Button className="w-full py-4 text-base">
                         Get Started
                       </Button>
                     </Link>
@@ -245,7 +257,7 @@ export default function Navbar() {
                   <motion.div variants={itemVariants}>
                     <Button
                       variant="danger"
-                      className="w-full py-4 text-lg"
+                      className="w-full py-4 text-base"
                       onClick={handleLogout}
                     >
                       Logout

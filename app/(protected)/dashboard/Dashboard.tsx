@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [roomCode, setRoomCode] = useState("");
   const [error, setError] = useState("");
   const [myRooms, setMyRooms] = useState<Room[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -30,6 +31,7 @@ export default function Dashboard() {
 
   const createRoom = async () => {
     setError("");
+    setLoading(true);
     if (!roomName.trim()) return setError("Room name is required");
 
     const res = await api("/rooms", "POST", { name: roomName }, getToken()!);
@@ -39,6 +41,7 @@ export default function Dashboard() {
     } else {
       setError(res.error || "Failed to create room");
     }
+    setLoading(false);
   };
 
   const joinRoom = async () => {
@@ -85,7 +88,7 @@ export default function Dashboard() {
               onChange={(e) => setRoomName(e.target.value)}
             />
             <Button className="w-full" onClick={createRoom}>
-              Create Room
+              {loading ? "Creating..." : "Create Room"}
             </Button>
           </div>
         </Card>

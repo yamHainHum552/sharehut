@@ -1,5 +1,4 @@
 "use client";
-import type { Metadata } from "next";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 

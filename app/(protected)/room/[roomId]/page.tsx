@@ -20,7 +20,7 @@ export async function generateMetadata({
   const { roomId } = await params;
 
   return {
-    title: `Room ${roomId} | ShareHut`,
+    title: `Room ${roomId}`,
     description: "Secure real-time text sharing room on ShareHut.",
     robots: {
       index: false,

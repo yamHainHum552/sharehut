@@ -19,19 +19,25 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   const login = async () => {
+    if (loading) return;
+
     setError("");
     setLoading(true);
 
-    const res = await api("/auth/login", "POST", { email, password });
+    try {
+      const res = await api("/auth/login", "POST", { email, password });
 
-    if (res.token) {
-      setToken(res.token);
-      window.location.href = "/dashboard";
-    } else {
-      setError(res.error || "Login failed");
+      if (res.token) {
+        setToken(res.token);
+        window.location.href = "/dashboard";
+      } else {
+        setError(res.error || "Login failed");
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const googleLogin = () => {
@@ -52,12 +58,20 @@ export default function LoginPage() {
             Login to continue to ShareHut
           </p>
 
-          <div className="mt-6 space-y-4">
+          {/* ✅ FORM */}
+          <form
+            className="mt-6 space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              login();
+            }}
+          >
             <Input
               placeholder="Email address"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
             />
 
             {/* Password with eye toggle */}
@@ -67,6 +81,7 @@ export default function LoginPage() {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <button
                 type="button"
@@ -80,7 +95,8 @@ export default function LoginPage() {
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
-            <Button className="w-full" onClick={login}>
+            {/* Submit */}
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </Button>
 
@@ -93,6 +109,7 @@ export default function LoginPage() {
 
             {/* Google OAuth */}
             <Button
+              type="button"
               variant="secondary"
               className="w-full flex items-center justify-center gap-3"
               onClick={googleLogin}
@@ -121,7 +138,7 @@ export default function LoginPage() {
               </svg>
               Continue with Google
             </Button>
-          </div>
+          </form>
 
           <p className="mt-6 text-sm text-neutral-400">
             Don’t have an account?{" "}

@@ -1,23 +1,24 @@
-import { motion } from "framer-motion";
+"use client";
+
+import { motion, type HTMLMotionProps } from "framer-motion";
 import clsx from "clsx";
+import React from "react";
 
 type ButtonProps = {
   children: React.ReactNode;
-  onClick?: () => void;
   variant?: "primary" | "secondary" | "danger";
   className?: string;
-};
+} & HTMLMotionProps<"button">;
 
 export default function Button({
   children,
-  onClick,
   variant = "primary",
   className,
+  ...props
 }: ButtonProps) {
   return (
     <motion.button
       whileTap={{ scale: 0.97 }}
-      onClick={onClick}
       className={clsx(
         "rounded-xl px-6 py-3 text-sm font-semibold transition",
         {
@@ -28,6 +29,7 @@ export default function Button({
         },
         className,
       )}
+      {...props}
     >
       {children}
     </motion.button>

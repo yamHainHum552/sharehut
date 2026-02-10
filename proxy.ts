@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 /**
  * Routes configuration
  */
-const PROTECTED_ROUTES = ["/dashboard", "/rooms", "/editor"];
+const PROTECTED_ROUTES = ["/dashboard", "/myrooms", "/profile"];
 
 const AUTH_ROUTES = ["/login", "/register"];
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Editor from "@/components/room/Editor";
+import Editor from "@/components/room/editor/Editor";
 import PendingApproval from "@/components/room/PendingApproval";
 import { api } from "@/lib/api";
 import { getToken } from "@/lib/auth";

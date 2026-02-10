@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import MyRooms from "./Myrooms";
 
 export const metadata: Metadata = {
-  title: "My Rooms | ShareHut",
+  title: "My Rooms",
   description:
     "View and manage all your private text-sharing rooms in ShareHut.",
   robots: {

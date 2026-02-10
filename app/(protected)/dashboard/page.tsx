@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Dashboard from "./Dashboard";
 
 export const metadata: Metadata = {
-  title: "Dashboard | ShareHut",
+  title: "Dashboard",
   description:
     "Manage your rooms and real-time text sharing activity on ShareHut.",
   robots: {
