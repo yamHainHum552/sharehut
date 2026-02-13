@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { api } from "@/lib/api";
 import Button from "@/components/ui/Button";
@@ -10,6 +11,8 @@ import Input from "@/components/ui/Input";
 import Card from "@/components/ui/Card";
 
 export default function RegisterPage() {
+  const router = useRouter();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,23 +24,28 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
 
-    const res = await api("/auth/register", "POST", {
-      name,
-      email,
-      password,
-    });
+    try {
+      await api("/auth/register", "POST", {
+        name,
+        email,
+        password,
+      });
 
-    if (!res.error) {
-      window.location.href = "/login";
-    } else {
-      setError(res.error || "Registration failed");
+      // If backend auto-logs in and sets cookie:
+      router.refresh(); // 🔥 refresh server layout
+      router.push("/dashboard");
+
+      // If backend does NOT auto-login:
+      // router.push("/login");
+    } catch (err: any) {
+      setError(err?.error || "Registration failed");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   const googleRegister = () => {
-    window.location.href = "http://localhost:4000/api/auth/google";
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/google`;
   };
 
   return (
@@ -68,7 +76,6 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
 
-            {/* Password with eye toggle */}
             <div className="relative">
               <Input
                 placeholder="Password"
@@ -80,7 +87,6 @@ export default function RegisterPage() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition"
-                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? "🙈" : "👁️"}
               </button>
@@ -88,45 +94,21 @@ export default function RegisterPage() {
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
-            <Button className="w-full" onClick={register}>
+            <Button className="w-full" onClick={register} disabled={loading}>
               {loading ? "Creating Account..." : "Create Account"}
             </Button>
 
-            {/* Divider */}
             <div className="flex items-center gap-3">
               <div className="h-px flex-1 bg-neutral-800" />
               <span className="text-xs text-neutral-500">OR</span>
               <div className="h-px flex-1 bg-neutral-800" />
             </div>
 
-            {/* Google OAuth */}
             <Button
               variant="secondary"
-              className="w-full flex items-center justify-center gap-3"
+              className="w-full"
               onClick={googleRegister}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 48 48"
-                className="h-5 w-5 mr-2"
-              >
-                <path
-                  fill="#EA4335"
-                  d="M24 9.5c3.1 0 5.9 1.1 8.1 2.9l6-6C34.6 3.1 29.6 1 24 1 14.7 1 6.6 6.9 3.1 15.1l7 5.4C11.6 13.5 17.2 9.5 24 9.5z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3.1-2.3 5.7-4.8 7.5l7 5.4c4.1-3.8 6.6-9.4 6.6-17.4z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M10.1 28.3c-.8-2.4-1.3-4.9-1.3-7.3s.5-4.9 1.3-7.3l-7-5.4C1.5 12.5 0 17.1 0 21.9s1.5 9.4 4.1 13.6l6-4.8z"
-                />
-                <path
-                  fill="#4285F4"
-                  d="M24 47c6.5 0 12-2.1 16-5.8l-7-5.4c-2 1.4-4.6 2.2-9 2.2-6.8 0-12.4-4-14.9-9.7l-7 5.4C6.6 41.1 14.7 47 24 47z"
-                />
-              </svg>
               Continue with Google
             </Button>
           </div>

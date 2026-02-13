@@ -1,81 +1,88 @@
 import type { Metadata } from "next";
+import { motion } from "framer-motion";
 
-export const metadata: Metadata = {
-  title: "About ShareHut | Secure Real-Time Text Sharing",
-  description:
-    "Learn about ShareHut, a secure real-time text sharing platform designed for private collaboration, fast synchronization, and user-controlled access.",
-  keywords: [
-    "ShareHut",
-    "real-time text sharing",
-    "secure collaboration",
-    "websocket collaboration",
-    "private rooms",
-    "live text sync",
-  ],
-  authors: [{ name: "ShareHut Team" }],
-  openGraph: {
-    title: "About ShareHut",
-    description:
-      "ShareHut is a secure, real-time text sharing platform built for private, controlled collaboration.",
-    url: "https://sharehut-two.vercel.app/about",
-    siteName: "ShareHut",
-    type: "website",
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+// export const metadata: Metadata = {
+//   title: "About ShareHut | Secure Real-Time Text Sharing",
+//   description:
+//     "Learn about ShareHut, a secure real-time text sharing platform designed for private collaboration.",
+// };
 
 export default function AboutPage() {
   return (
-    <main className="max-w-5xl mx-auto px-6 py-16">
-      <h1 className="text-4xl font-bold mb-6">About ShareHut</h1>
-
-      <p className="text-lg text-gray-600 mb-8">
-        ShareHut is a secure, real-time text sharing platform designed to make
-        collaboration simple, fast, and controlled. It enables users to create
-        private rooms where text can be shared and synchronized instantly among
-        authorized participants.
-      </p>
-
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
-        <p className="text-gray-700 leading-relaxed">
-          Our mission is to provide a lightweight yet reliable collaboration
-          tool that prioritizes privacy, security, and real-time performance.
-          ShareHut removes unnecessary complexity so users can focus on sharing
-          ideas without friction.
+    <main className="bg-neutral-950 text-white">
+      {/* Hero */}
+      <section className="max-w-5xl mx-auto px-6 py-24 text-center">
+        <h1 className="text-5xl font-bold tracking-tight leading-tight">
+          Built for Secure, Real-Time Collaboration
+        </h1>
+        <p className="mt-6 text-lg text-neutral-400 max-w-2xl mx-auto">
+          ShareHut enables private room-based text collaboration with instant
+          synchronization, secure access control, and lightweight architecture.
         </p>
       </section>
 
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Key Features</h2>
-        <ul className="list-disc list-inside text-gray-700 space-y-2">
-          <li>Real-time text synchronization using WebSockets</li>
-          <li>Room-based collaboration with unique room codes</li>
-          <li>Join request approval for controlled access</li>
-          <li>JWT-based secure authentication</li>
-          <li>Rate limiting and abuse prevention</li>
-          <li>Cloud-hosted and scalable architecture</li>
-        </ul>
+      {/* Mission */}
+      <section className="max-w-5xl mx-auto px-6 pb-24">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-10 shadow-lg">
+          <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
+          <p className="text-neutral-400 leading-relaxed">
+            Our mission is to build a fast, secure, and distraction-free
+            collaboration platform. ShareHut prioritizes privacy and performance
+            while keeping the experience simple and intuitive.
+          </p>
+        </div>
       </section>
 
-      <section className="mb-10">
-        <h2 className="text-2xl font-semibold mb-4">Who is ShareHut for?</h2>
-        <p className="text-gray-700 leading-relaxed">
-          ShareHut is ideal for students, small teams, developers, and anyone
-          who needs fast and secure text collaboration without the overhead of
-          complex tools.
-        </p>
+      {/* Features Grid */}
+      <section className="max-w-6xl mx-auto px-6 pb-24">
+        <h2 className="text-3xl font-bold text-center mb-14">Core Features</h2>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {[
+            {
+              title: "Real-Time Sync",
+              desc: "Instant text synchronization powered by WebSockets.",
+            },
+            {
+              title: "Room-Based Access",
+              desc: "Unique room codes with controlled membership.",
+            },
+            {
+              title: "Secure Authentication",
+              desc: "JWT-based access with strict server-side validation.",
+            },
+            {
+              title: "Join Approvals",
+              desc: "Owners approve participants for controlled collaboration.",
+            },
+            {
+              title: "Rate Limiting",
+              desc: "Built-in abuse prevention and request throttling.",
+            },
+            {
+              title: "Scalable Architecture",
+              desc: "Cloud-hosted backend designed for growth.",
+            },
+          ].map((feature) => (
+            <div
+              key={feature.title}
+              className="bg-neutral-900 border border-neutral-800 rounded-xl p-8 hover:border-purple-500/50 transition"
+            >
+              <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+              <p className="text-neutral-400 text-sm leading-relaxed">
+                {feature.desc}
+              </p>
+            </div>
+          ))}
+        </div>
       </section>
 
-      <section>
-        <h2 className="text-2xl font-semibold mb-4">Privacy & Security</h2>
-        <p className="text-gray-700 leading-relaxed">
-          ShareHut is built with privacy in mind. Only authorized users can
-          access rooms, and all communication takes place over encrypted
-          connections. No unnecessary personal data is collected.
+      {/* Audience */}
+      <section className="max-w-5xl mx-auto px-6 pb-32 text-center">
+        <h2 className="text-3xl font-bold mb-6">Who is ShareHut for?</h2>
+        <p className="text-neutral-400 max-w-3xl mx-auto leading-relaxed">
+          Students, developers, teams, and anyone who needs secure, lightweight
+          text collaboration without heavy project management overhead.
         </p>
       </section>
     </main>

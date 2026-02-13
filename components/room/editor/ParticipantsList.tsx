@@ -4,6 +4,7 @@ import { socket } from "@/lib/socket";
 type User = {
   id: string;
   name: string;
+  type?: "user" | "guest";
 };
 
 export default function ParticipantsList({
@@ -22,26 +23,33 @@ export default function ParticipantsList({
       <h3 className="text-lg font-semibold">Participants</h3>
 
       <div className="mt-4 flex flex-wrap gap-2">
-        {users.map((u) => (
-          <div
-            key={u.id}
-            className="flex items-center gap-2 rounded-full bg-neutral-800 px-3 py-1 text-sm"
-          >
-            <span>{u.name}</span>
+        {users.map((u) => {
+          const canKick =
+            isOwner &&
+            u.type === "user" && // ✅ only real users
+            u.id !== currentUserId; // ✅ not self
 
-            {isOwner && u.id !== currentUserId && (
-              <button
-                onClick={() =>
-                  socket.emit("kick-user", { roomId, userId: u.id })
-                }
-                className="text-red-400 hover:text-red-300"
-                title="Kick user"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        ))}
+          return (
+            <div
+              key={u.id}
+              className="flex items-center gap-2 rounded-full bg-neutral-800 px-3 py-1 text-sm"
+            >
+              <span>{u.name}</span>
+
+              {canKick && (
+                <button
+                  onClick={() =>
+                    socket.emit("kick-user", { roomId, userId: u.id })
+                  }
+                  className="text-red-400 hover:text-red-300"
+                  title="Kick user"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </Card>
   );

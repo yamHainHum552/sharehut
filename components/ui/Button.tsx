@@ -7,12 +7,14 @@ import React from "react";
 type ButtonProps = {
   children: React.ReactNode;
   variant?: "primary" | "secondary" | "danger";
+  size?: "sm" | "md" | "lg";
   className?: string;
 } & HTMLMotionProps<"button">;
 
 export default function Button({
   children,
   variant = "primary",
+  size = "md",
   className,
   ...props
 }: ButtonProps) {
@@ -20,7 +22,14 @@ export default function Button({
     <motion.button
       whileTap={{ scale: 0.97 }}
       className={clsx(
-        "rounded-xl px-6 py-3 text-sm font-semibold transition",
+        "rounded-xl font-semibold transition",
+        // Size styles
+        {
+          "px-4 py-2 text-sm": size === "sm",
+          "px-6 py-3 text-sm": size === "md",
+          "px-8 py-4 text-base": size === "lg",
+        },
+        // Variant styles
         {
           "bg-white text-black hover:bg-neutral-200": variant === "primary",
           "border border-neutral-700 hover:border-neutral-500":

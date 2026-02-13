@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { getToken } from "@/lib/auth";
+import { getToken } from "@/lib/auth-server";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 

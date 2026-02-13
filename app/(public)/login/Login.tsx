@@ -4,9 +4,8 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { BACKEND_URL } from "@/config/constants";
-
+import { refreshSocketAuth } from "@/lib/socketAuth";
 import { api } from "@/lib/api";
-import { setToken } from "@/lib/auth";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Card from "@/components/ui/Card";
@@ -27,8 +26,8 @@ export default function LoginPage() {
     try {
       const res = await api("/auth/login", "POST", { email, password });
 
-      if (res.token) {
-        setToken(res.token);
+      if (res.success) {
+        refreshSocketAuth();
         window.location.href = "/dashboard";
       } else {
         setError(res.error || "Login failed");

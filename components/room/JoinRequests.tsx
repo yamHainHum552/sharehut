@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { getToken } from "@/lib/auth";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 
@@ -11,37 +10,46 @@ type JoinRequest = {
   user_id: string;
 };
 
-export default function JoinRequests({ roomId }: { roomId: string }) {
+interface JoinRequestsProps {
+  roomId: string;
+  refreshKey?: number; // 👈 NEW
+}
+
+export default function JoinRequests({
+  roomId,
+  refreshKey,
+}: JoinRequestsProps) {
   const [requests, setRequests] = useState<JoinRequest[]>([]);
+  const [loading, setLoding] = useState(false);
 
   const fetchRequests = async () => {
     try {
-      const res = await api(
-        `/requests/${roomId}`,
-        "GET",
-        undefined,
-        getToken()!,
-      );
-      setRequests(res || []);
+      const res = await api(`/requests/${roomId}`, "GET");
+
+      if (Array.isArray(res)) {
+        setRequests(res);
+      } else if (Array.isArray(res?.requests)) {
+        setRequests(res.requests);
+      } else {
+        setRequests([]);
+      }
     } catch {
-      // non-owner will get 403, ignore silently
+      setRequests([]);
     }
   };
 
   useEffect(() => {
     fetchRequests();
+
     const interval = setInterval(fetchRequests, 3000);
     return () => clearInterval(interval);
-  }, [roomId]);
+  }, [roomId, refreshKey]); // 👈 refreshKey added
 
   const approve = async (requestId: string) => {
-    await api(
-      `/requests/approve/${requestId}`,
-      "POST",
-      { approve: true },
-      getToken()!,
-    );
+    setLoding(true);
+    await api(`/requests/approve/${requestId}`, "POST", { approve: true });
     fetchRequests();
+    setLoding(false);
   };
 
   if (requests.length === 0) return null;

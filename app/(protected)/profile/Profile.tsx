@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { api } from "@/lib/api";
-import { getToken, logout } from "@/lib/auth";
+import { logout } from "@/lib/auth-client";
 
 type User = {
   id: string;
@@ -21,7 +21,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await api("/auth/me", "GET", undefined, getToken()!);
+        const res = await api("/auth/me", "GET");
         setUser(res);
       } catch {
         setError("Failed to load profile");

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { setToken } from "@/lib/auth";
+import { setToken } from "@/lib/auth-server";
 
 export default function OAuthSuccess() {
   useEffect(() => {

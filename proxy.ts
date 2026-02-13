@@ -8,45 +8,37 @@ const PROTECTED_ROUTES = ["/dashboard", "/myrooms", "/profile"];
 
 const AUTH_ROUTES = ["/login", "/register"];
 
+const GUEST_ONLY_ROUTES = ["/share"];
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const token = request.cookies.get("token")?.value;
 
-  /**
-   * =========================
-   * AUTH ROUTE PROTECTION
-   * =========================
-   */
+  if (pathname.startsWith("/room")) {
+    return NextResponse.next();
+  }
 
-  // 🚫 Block unauthenticated users from protected routes
   if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     if (!token) {
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
 
-  // 🔁 Redirect authenticated users away from login/register
   if (AUTH_ROUTES.includes(pathname)) {
     if (token) {
-      const dashboardUrl = new URL("/dashboard", request.url);
-      return NextResponse.redirect(dashboardUrl);
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   }
 
-  /**
-   * =========================
-   * CONTINUE REQUEST
-   * =========================
-   */
+  if (GUEST_ONLY_ROUTES.some((route) => pathname.startsWith(route))) {
+    if (token) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  }
+
   const response = NextResponse.next();
 
-  /**
-   * =========================
-   * CONTENT SECURITY POLICY
-   * =========================
-   */
   response.headers.set(
     "Content-Security-Policy",
     [
@@ -62,9 +54,6 @@ export function proxy(request: NextRequest) {
   return response;
 }
 
-/**
- * Apply middleware to all routes
- */
 export const config = {
   matcher: ["/:path*"],
 };

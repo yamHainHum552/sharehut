@@ -1,7 +1,7 @@
+"use client";
+
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
-import { api } from "@/lib/api";
-import { getToken } from "@/lib/auth";
 import { socket } from "@/lib/socket";
 
 export default function RoomSettingsModal({
@@ -21,17 +21,19 @@ export default function RoomSettingsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
       <Card className="w-full max-w-md space-y-6">
+        {/* Header */}
         <div className="flex justify-between items-center">
           <h3 className="text-lg font-semibold">Room Settings</h3>
           <button
             onClick={onClose}
             className="text-neutral-400 hover:text-white"
+            aria-label="Close settings"
           >
             ✕
           </button>
         </div>
 
-        {/* Read-only */}
+        {/* ================= READ ONLY ================= */}
         <div className="flex justify-between items-center">
           <div>
             <p className="font-medium">Read-only mode</p>
@@ -42,22 +44,23 @@ export default function RoomSettingsModal({
 
           <Button
             variant="secondary"
-            onClick={async () => {
+            onClick={() => {
               const next = !room.isReadOnly;
-              onUpdate({ isReadOnly: next }); // optimistic
-              await api(
-                `/rooms/${roomId}/settings`,
-                "PATCH",
-                { isReadOnly: next },
-                getToken()!,
-              );
+
+              // optimistic update
+              onUpdate({ isReadOnly: next });
+
+              socket.emit("update-settings", {
+                roomId,
+                isReadOnly: next,
+              });
             }}
           >
             {room.isReadOnly ? "Disable" : "Enable"}
           </Button>
         </div>
 
-        {/* Lock room */}
+        {/* ================= LOCK ROOM ================= */}
         <div className="flex justify-between items-center">
           <div>
             <p className="font-medium">Lock room</p>
@@ -69,10 +72,14 @@ export default function RoomSettingsModal({
           <Button
             variant="secondary"
             onClick={() => {
-              onUpdate({ allowJoins: !room.allowJoins }); // optimistic
+              const locked = room.allowJoins;
+
+              // optimistic update
+              onUpdate({ allowJoins: !locked });
+
               socket.emit("toggle-room-lock", {
                 roomId,
-                locked: room.allowJoins,
+                locked,
               });
             }}
           >
@@ -80,6 +87,7 @@ export default function RoomSettingsModal({
           </Button>
         </div>
 
+        {/* Footer */}
         <Button className="w-full" onClick={onClose}>
           Done
         </Button>

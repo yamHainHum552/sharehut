@@ -1,11 +1,8 @@
+import { io, Socket } from "socket.io-client";
 import { BACKEND_URL } from "@/config/constants";
-import { io } from "socket.io-client";
-import { getToken } from "@/lib/auth";
 
-export const socket = io(BACKEND_URL, {
+export const socket: Socket = io(BACKEND_URL, {
   autoConnect: false,
-  transports: ["websocket"], // important
-  auth: {
-    token: getToken(), // 🔐 REQUIRED (your backend expects this)
-  },
+  transports: ["websocket"],
+  withCredentials: true, // 🔥 ADD THIS
 });

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { api } from "@/lib/api";
-import { getToken } from "@/lib/auth";
+
 import Card from "@/components/ui/Card";
 
 export default function PendingApproval({ roomId }: { roomId: string }) {
@@ -15,7 +15,7 @@ export default function PendingApproval({ roomId }: { roomId: string }) {
       sentRef.current = true;
 
       try {
-        await api(`/requests/${roomId}`, "POST", undefined, getToken()!);
+        await api(`/requests/${roomId}`, "POST");
       } catch {
         // ignore duplicate / already requested
       }
@@ -25,12 +25,7 @@ export default function PendingApproval({ roomId }: { roomId: string }) {
 
     // 2️⃣ Poll membership
     const interval = setInterval(async () => {
-      const res = await api(
-        `/rooms/${roomId}/membership`,
-        "GET",
-        undefined,
-        getToken()!,
-      );
+      const res = await api(`/rooms/${roomId}/membership`, "GET");
 
       if (res.isMember) {
         window.location.href = `/room/${roomId}`;

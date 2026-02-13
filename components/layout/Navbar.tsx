@@ -4,15 +4,17 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Variants } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 import Button from "../ui/Button";
-import { isLoggedIn, logout } from "@/lib/auth";
+import { logout } from "@/lib/auth-client";
 
 /* ---------------- CONFIG ---------------- */
 
 const PUBLIC_LINKS = [
   { name: "About", href: "/about" },
   { name: "FAQs", href: "/faqs" },
+  { name: "Contact", href: "/contact" },
 ];
 
 const AUTH_LINKS = [
@@ -60,18 +62,17 @@ const itemVariants: Variants = {
 
 /* ---------------- COMPONENT ---------------- */
 
-export default function Navbar() {
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [authReady, setAuthReady] = useState(false);
+export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
+
   const [mobileOpen, setMobileOpen] = useState(false);
+  const LINKS = loggedIn ? AUTH_LINKS : PUBLIC_LINKS;
+
+  const router = useRouter();
 
   const bodyOverflowRef = useRef("");
 
   /* Sync auth */
-  useEffect(() => {
-    setLoggedIn(isLoggedIn());
-    setAuthReady(true);
-  }, []);
 
   /* Lock body scroll */
   useEffect(() => {
@@ -99,13 +100,11 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileOpen]);
 
-  const handleLogout = () => {
-    logout();
-    setLoggedIn(false);
+  const handleLogout = async () => {
+    await logout();
+    router.refresh(); // 🔥 re-fetch server layout
     setMobileOpen(false);
   };
-
-  const LINKS = loggedIn ? AUTH_LINKS : PUBLIC_LINKS;
 
   return (
     <nav className="sticky top-0 z-50 border-b border-neutral-800/70 bg-neutral-950/75 backdrop-blur-xl">
@@ -134,9 +133,7 @@ export default function Navbar() {
 
         {/* Desktop Auth */}
         <div className="hidden md:flex items-center gap-3">
-          {!authReady ? (
-            <div className="h-9 w-24 animate-pulse rounded-lg bg-neutral-800" />
-          ) : !loggedIn ? (
+          {!loggedIn && (
             <>
               <Link href="/login">
                 <Button variant="secondary">Login</Button>
@@ -145,10 +142,6 @@ export default function Navbar() {
                 <Button>Get Started</Button>
               </Link>
             </>
-          ) : (
-            <Button variant="danger" onClick={handleLogout}>
-              Logout
-            </Button>
           )}
         </div>
 
@@ -234,11 +227,8 @@ export default function Navbar() {
 
               {/* Auth */}
               <div className="mt-auto pt-8 border-t border-neutral-800">
-                {!authReady ? null : !loggedIn ? (
-                  <motion.div
-                    variants={itemVariants}
-                    className="flex flex-col gap-4"
-                  >
+                {!loggedIn ? (
+                  <div className="flex flex-col gap-4">
                     <Link href="/login" onClick={() => setMobileOpen(false)}>
                       <Button
                         variant="secondary"
@@ -252,17 +242,15 @@ export default function Navbar() {
                         Get Started
                       </Button>
                     </Link>
-                  </motion.div>
+                  </div>
                 ) : (
-                  <motion.div variants={itemVariants}>
-                    <Button
-                      variant="danger"
-                      className="w-full py-4 text-base"
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </Button>
-                  </motion.div>
+                  <Button
+                    variant="danger"
+                    className="w-full py-4 text-base"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Button>
                 )}
               </div>
             </motion.aside>

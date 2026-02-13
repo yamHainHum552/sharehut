@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { getToken } from "@/lib/auth";
+import { useRouter } from "next/navigation";
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -15,6 +15,8 @@ type Room = {
 };
 
 export default function Dashboard() {
+  const router = useRouter();
+
   const [roomName, setRoomName] = useState("");
   const [roomCode, setRoomCode] = useState("");
   const [error, setError] = useState("");
@@ -23,48 +25,65 @@ export default function Dashboard() {
 
   useEffect(() => {
     const fetchRooms = async () => {
-      const res = await api("/rooms/my", "GET", undefined, getToken()!);
-      if (res.rooms) setMyRooms(res.rooms);
+      try {
+        const res = await api("/rooms/my", "GET");
+        if (res.rooms) setMyRooms(res.rooms);
+      } catch {
+        setError("Failed to load rooms");
+      }
     };
     fetchRooms();
   }, []);
 
   const createRoom = async () => {
     setError("");
-    setLoading(true);
-    if (!roomName.trim()) return setError("Room name is required");
-
-    const res = await api("/rooms", "POST", { name: roomName }, getToken()!);
-
-    if (res.roomId && res.roomCode) {
-      window.location.href = `/room/${res.roomId}?code=${res.roomCode}`;
-    } else {
-      setError(res.error || "Failed to create room");
+    if (!roomName.trim()) {
+      setError("Room name is required");
+      return;
     }
-    setLoading(false);
+
+    setLoading(true);
+
+    try {
+      const res = await api("/rooms", "POST", { name: roomName });
+
+      if (res.roomId && res.roomCode) {
+        router.push(`/room/${res.roomId}?code=${res.roomCode}`);
+      } else {
+        setError(res.error || "Failed to create room");
+      }
+    } catch (err: any) {
+      setError(err?.error || "Failed to create room");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const joinRoom = async () => {
     setError("");
-    if (!roomCode.trim()) return setError("Room code is required");
 
-    const res = await api(
-      "/rooms/join",
-      "POST",
-      { roomCode: roomCode.toUpperCase() },
-      getToken()!,
-    );
-
-    if (!res.roomId) {
-      setError(res.error || "Invalid room code");
+    if (!roomCode.trim()) {
+      setError("Room code is required");
       return;
     }
 
-    // 🔐 Private room → wait for approval
-    if (res.requiresApproval) {
-      window.location.href = `/room/${res.roomId}?code=${roomCode}&pending=true`;
-    } else {
-      window.location.href = `/room/${res.roomId}?code=${roomCode}`;
+    try {
+      const res = await api("/rooms/join", "POST", {
+        roomCode: roomCode.toUpperCase(),
+      });
+
+      if (!res.roomId) {
+        setError(res.error || "Invalid room code");
+        return;
+      }
+
+      if (res.requiresApproval) {
+        router.push(`/room/${res.roomId}?code=${roomCode}&pending=true`);
+      } else {
+        router.push(`/room/${res.roomId}?code=${roomCode}`);
+      }
+    } catch (err: any) {
+      setError(err?.error || "Failed to join room");
     }
   };
 
@@ -78,7 +97,6 @@ export default function Dashboard() {
       {error && <p className="mt-6 text-sm text-red-500">{error}</p>}
 
       <div className="mt-10 grid gap-8 md:grid-cols-2">
-        {/* Create Room */}
         <Card>
           <h2 className="text-xl font-semibold">Create Room</h2>
           <div className="mt-6 space-y-4">
@@ -87,13 +105,12 @@ export default function Dashboard() {
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
             />
-            <Button className="w-full" onClick={createRoom}>
+            <Button className="w-full" onClick={createRoom} disabled={loading}>
               {loading ? "Creating..." : "Create Room"}
             </Button>
           </div>
         </Card>
 
-        {/* Join Room */}
         <Card>
           <h2 className="text-xl font-semibold">Join Room</h2>
           <div className="mt-6 space-y-4">
@@ -109,7 +126,6 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* My Rooms */}
       <div className="mt-14">
         <h2 className="text-2xl font-semibold">My Rooms</h2>
 
@@ -126,7 +142,7 @@ export default function Dashboard() {
                 <Button
                   className="mt-4 w-full"
                   onClick={() =>
-                    (window.location.href = `/room/${room.id}?code=${room.room_code}`)
+                    router.push(`/room/${room.id}?code=${room.room_code}`)
                   }
                 >
                   Enter Room
