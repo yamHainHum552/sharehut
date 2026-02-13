@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { getToken } from "@/lib/auth-server";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 
@@ -17,7 +16,7 @@ export default function MyRoomsPage() {
 
   useEffect(() => {
     const fetchRooms = async () => {
-      const res = await api("/rooms/my", "GET", undefined, getToken()!);
+      const res = await api("/rooms/my", "GET");
       setRooms(res.rooms || []);
     };
 
