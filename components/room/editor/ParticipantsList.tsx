@@ -25,9 +25,7 @@ export default function ParticipantsList({
       <div className="mt-4 flex flex-wrap gap-2">
         {users.map((u) => {
           const canKick =
-            isOwner &&
-            u.type === "user" && // ✅ only real users
-            u.id !== currentUserId; // ✅ not self
+            isOwner && u.type === "user" && u.id !== currentUserId;
 
           return (
             <div

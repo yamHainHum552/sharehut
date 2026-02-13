@@ -7,7 +7,7 @@ import { Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
 
 import Button from "../ui/Button";
-import { logout } from "@/lib/auth-client";
+import { api } from "@/lib/api";
 
 /* ---------------- CONFIG ---------------- */
 
@@ -65,7 +65,13 @@ const itemVariants: Variants = {
 /* ---------------- COMPONENT ---------------- */
 
 export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
-  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    api("/auth/me", "GET")
+      .then(() => setLoggedIn(true))
+      .catch(() => setLoggedIn(false));
+  }, []);
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const LINKS = loggedIn ? AUTH_LINKS : PUBLIC_LINKS;
@@ -101,12 +107,6 @@ export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [mobileOpen]);
-
-  const handleLogout = async () => {
-    await logout();
-    router.refresh(); // 🔥 re-fetch server layout
-    setMobileOpen(false);
-  };
 
   return (
     <nav className="sticky top-0 z-50 border-b border-neutral-800/70 bg-neutral-950/75 backdrop-blur-xl">

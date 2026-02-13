@@ -2,7 +2,6 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import "./globals.css";
 import type { Metadata } from "next";
-import { getServerAuth } from "@/lib/auth-server";
 
 export const metadata: Metadata = {
   title: {
@@ -68,17 +67,15 @@ export const metadata: Metadata = {
   category: "technology",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { isLoggedIn } = await getServerAuth();
-
   return (
     <html lang="en">
       <body className="bg-neutral-950 text-white">
-        <Navbar isLoggedIn={isLoggedIn} />
+        <Navbar isLoggedIn={false} />
         {children}
         <Footer />
       </body>
