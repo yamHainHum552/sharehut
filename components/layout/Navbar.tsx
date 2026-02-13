@@ -15,6 +15,8 @@ const PUBLIC_LINKS = [
   { name: "About", href: "/about" },
   { name: "FAQs", href: "/faqs" },
   { name: "Contact", href: "/contact" },
+  { name: "Privacy", href: "/privacy" },
+  { name: "Terms Of Service", href: "/terms" },
 ];
 
 const AUTH_LINKS = [
@@ -227,7 +229,7 @@ export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
 
               {/* Auth */}
               <div className="mt-auto pt-8 border-t border-neutral-800">
-                {!loggedIn ? (
+                {!loggedIn && (
                   <div className="flex flex-col gap-4">
                     <Link href="/login" onClick={() => setMobileOpen(false)}>
                       <Button
@@ -243,14 +245,6 @@ export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
                       </Button>
                     </Link>
                   </div>
-                ) : (
-                  <Button
-                    variant="danger"
-                    className="w-full py-4 text-base"
-                    onClick={handleLogout}
-                  >
-                    Logout
-                  </Button>
                 )}
               </div>
             </motion.aside>
