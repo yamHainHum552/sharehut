@@ -11,7 +11,6 @@ import ParticipantsList from "./ParticipantsList";
 import TextEditor from "./TextEditor";
 import RoomSettingsModal from "./RoomSettingsModal";
 import JoinRequests from "@/components/room/JoinRequests";
-import RoomExpiryTimer from "@/components/room/editor/RoomExpiryTimer";
 
 interface RoomState {
   isOwner: boolean;
@@ -159,7 +158,16 @@ export default function Editor({
 
     return () => {
       socket.emit("leave-room");
-      socket.removeAllListeners();
+
+      socket.off("user-list", handleUserList);
+      socket.off("text-update", handleTextUpdate);
+      socket.off("guest-limit-reached", handleGuestLimit);
+      socket.off("join-request-created", handleJoinRequestCreated);
+      socket.off("join-denied", handleJoinDenied);
+      socket.off("room-abandoned", handleRoomAbandoned);
+      socket.off("kicked", handleKicked);
+      socket.off("room-settings-updated");
+      socket.off("room-expired");
     };
   }, [joined]);
 
@@ -191,12 +199,11 @@ export default function Editor({
         code={room.code}
         isOwner={room.isOwner}
         roomName={room.name}
+        expiresAt={room.expiresAt}
         onOpenSettings={() => setShowSettings(true)}
       />
 
       <RoomStatus room={room} />
-
-      {room.expiresAt && <RoomExpiryTimer expiresAt={room.expiresAt} />}
 
       {guestBlocked && (
         <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-400">
