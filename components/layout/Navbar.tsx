@@ -7,7 +7,6 @@ import { Variants } from "framer-motion";
 import { useRouter } from "next/navigation";
 
 import Button from "../ui/Button";
-import { api } from "@/lib/api";
 
 /* ---------------- CONFIG ---------------- */
 
@@ -65,13 +64,7 @@ const itemVariants: Variants = {
 /* ---------------- COMPONENT ---------------- */
 
 export default function Navbar({ isLoggedIn }: { isLoggedIn: boolean }) {
-  const [loggedIn, setLoggedIn] = useState(false);
-
-  useEffect(() => {
-    api("/auth/me", "GET")
-      .then(() => setLoggedIn(true))
-      .catch(() => setLoggedIn(false));
-  }, []);
+  const [loggedIn, setLoggedIn] = useState(isLoggedIn);
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const LINKS = loggedIn ? AUTH_LINKS : PUBLIC_LINKS;

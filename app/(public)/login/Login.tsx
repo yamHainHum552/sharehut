@@ -25,6 +25,7 @@ export default function LoginPage() {
 
     try {
       const res = await api("/auth/login", "POST", { email, password });
+      console.log(res);
 
       if (res.success) {
         refreshSocketAuth();
