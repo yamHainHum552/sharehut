@@ -6,7 +6,7 @@ import { getServerAuth } from "@/lib/auth-server";
 
 export const metadata: Metadata = {
   title: {
-    default: "ShareHut — Secure Real-Time Text Sharing",
+    default: "ShareHutLive — Secure Real-Time Text Sharing",
     template: "%s | ShareHut",
   },
   description:
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   authors: [{ name: "ShareHut Team" }],
   creator: "ShareHut",
   publisher: "ShareHut",
-  metadataBase: new URL("https://sharehut-two.vercel.app"),
+  metadataBase: new URL("https://sharehutlive.com"),
 
   alternates: {
     canonical: "/",
@@ -40,10 +40,10 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 
   openGraph: {
-    title: "ShareHut — Secure Real-Time Text Sharing",
+    title: "ShareHutLive — Secure Real-Time Text Sharing",
     description:
       "Create secure rooms and collaborate instantly with ShareHut. Built for speed, privacy, and real-time teamwork.",
-    url: "https://sharehut-two.vercel.app",
+    url: "https://sharehutlive.com",
     siteName: "ShareHut",
     images: [
       {
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     title: "ShareHut — Secure Real-Time Text Sharing",
     description: "Create secure rooms and collaborate instantly with ShareHut.",
     images: ["/og-image.png"],
-    creator: "@sharehut", // optional
+    creator: "@sharehut",
   },
 
   category: "technology",

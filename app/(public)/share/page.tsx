@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "QuickShare — Instant Secure Text Sharing | ShareHut",
     description:
       "Start sharing text instantly with QuickShare. Create a secure room, collaborate in real-time, and synchronize content across devices without friction.",
-    url: "https://sharehut-two.vercel.app/quickshare",
+    url: "https://sharehutlive.com/share",
     siteName: "ShareHut",
     type: "website",
   },

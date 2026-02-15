@@ -10,7 +10,7 @@ const AUTH_ROUTES = ["/login", "/register"];
 
 const GUEST_ONLY_ROUTES = ["/share"];
 
-export function proxy(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const token = request.cookies.get("token")?.value;

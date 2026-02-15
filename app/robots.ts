@@ -6,9 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/login", "/register", "/oauth-success", "/dashboard"],
+        disallow: ["/login", "/register", "/dashboard"],
       },
     ],
-    sitemap: "https://sharehut-two.vercel.app/sitemap.xml",
+    sitemap: "https://sharehutlive.com/sitemap.xml",
   };
 }

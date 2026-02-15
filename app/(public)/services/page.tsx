@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "ShareHut Services — Secure Real-Time Collaboration",
     description:
       "Discover ShareHut’s core services: real-time text sharing, private rooms, join approval workflows, and secure collaboration.",
-    url: "https://sharehut-two.vercel.app/services",
+    url: "https://sharehutlive.com/services",
     siteName: "ShareHut",
     type: "website",
   },
