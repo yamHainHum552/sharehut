@@ -3,6 +3,7 @@ import Footer from "@/components/layout/Footer";
 import "./globals.css";
 import type { Metadata } from "next";
 import { getServerAuth } from "@/lib/auth-server";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: {
@@ -77,6 +78,14 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7559107405287287"
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="bg-neutral-950 text-white">
         <Navbar isLoggedIn={isLoggedIn} />
         {children}
