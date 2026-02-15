@@ -33,8 +33,8 @@ export default function LoginPage() {
       } else {
         setError(res.error || "Login failed");
       }
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (err: any) {
+      setError(err?.error || "Login failed");
     } finally {
       setLoading(false);
     }

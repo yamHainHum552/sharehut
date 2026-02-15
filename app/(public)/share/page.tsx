@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import SharePage from "./Share";
 
 export const metadata: Metadata = {
-  title: "QuickShare | Instant Secure Text Sharing",
+  title: "QuickShare",
   description:
     "QuickShare by ShareHut enables instant, secure, and temporary text sharing without complex setup. Create a room, share text in real-time, and collaborate seamlessly with end-to-end security.",
   alternates: {

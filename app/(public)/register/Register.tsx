@@ -32,8 +32,7 @@ export default function RegisterPage() {
       });
 
       // If backend auto-logs in and sets cookie:
-      router.refresh(); // 🔥 refresh server layout
-      router.push("/dashboard");
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
 
       // If backend does NOT auto-login:
       // router.push("/login");
