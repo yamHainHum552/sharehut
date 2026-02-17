@@ -41,6 +41,7 @@ export default function Editor({
   const [showSettings, setShowSettings] = useState(false);
   const [joined, setJoined] = useState(false);
   const [guestBlocked, setGuestBlocked] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(false);
 
   const [room, setRoom] = useState<RoomState>({
     isOwner: false,
@@ -193,56 +194,67 @@ export default function Editor({
   /* -------------------------------------------------------------------------- */
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-8 space-y-6">
-      <RoomHeader
-        roomId={roomId}
-        code={room.code}
-        isOwner={room.isOwner}
-        roomName={room.name}
-        expiresAt={room.expiresAt}
-        onOpenSettings={() => setShowSettings(true)}
-      />
+    <div className="flex h-screen overflow-hidden relative">
+      {/* Main Editor Area */}
+      <div className="flex-1 flex flex-col border-r border-neutral-800">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
+          <RoomHeader
+            roomId={roomId}
+            code={room.code}
+            isOwner={room.isOwner}
+            roomName={room.name}
+            expiresAt={room.expiresAt}
+            onOpenSettings={() => setShowSettings(true)}
+            onOpenParticipants={() => setShowParticipants(true)}
+          />
 
-      <RoomStatus room={room} />
+          <RoomStatus room={room} />
 
-      {guestBlocked && (
-        <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-400">
-          Guest edit limit reached (15 edits). Please sign in for unlimited
-          collaboration.
+          {guestBlocked && (
+            <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-400">
+              Guest edit limit reached (15 edits). Please sign in for unlimited
+              collaboration.
+            </div>
+          )}
+
+          {room.isOwner && !room.isGuestRoom && (
+            <JoinRequests roomId={roomId} refreshKey={refreshJoinRequests} />
+          )}
+
+          <TextEditor
+            text={text}
+            isReadOnly={room.isReadOnly || guestBlocked}
+            isOwner={room.isOwner}
+            onChange={(value) => {
+              if (guestBlocked) return;
+              setText(value);
+              socket.emit("text-update", { roomId, text: value });
+            }}
+          />
+
+          {showSettings && (
+            <RoomSettingsModal
+              room={room}
+              roomId={roomId}
+              onClose={() => setShowSettings(false)}
+              onUpdate={(updates) =>
+                setRoom((prev) => ({ ...prev, ...updates }))
+              }
+            />
+          )}
         </div>
-      )}
+      </div>
 
-      {/* 🔥 Only render join requests for authenticated rooms */}
-      {room.isOwner && !room.isGuestRoom && (
-        <JoinRequests roomId={roomId} refreshKey={refreshJoinRequests} />
-      )}
-
+      {/* Sidebar */}
       <ParticipantsList
         users={users}
         isOwner={room.isOwner}
         currentUserId={room.currentUserId}
         roomId={roomId}
+        isOpen={showParticipants}
+        onClose={() => setShowParticipants(false)}
       />
-
-      <TextEditor
-        text={text}
-        isReadOnly={room.isReadOnly || guestBlocked}
-        isOwner={room.isOwner}
-        onChange={(value) => {
-          if (guestBlocked) return;
-          setText(value);
-          socket.emit("text-update", { roomId, text: value });
-        }}
-      />
-
-      {showSettings && (
-        <RoomSettingsModal
-          room={room}
-          roomId={roomId}
-          onClose={() => setShowSettings(false)}
-          onUpdate={(updates) => setRoom((prev) => ({ ...prev, ...updates }))}
-        />
-      )}
     </div>
   );
 }
