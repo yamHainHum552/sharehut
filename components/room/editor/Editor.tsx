@@ -32,15 +32,14 @@ export default function Editor({
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
-
   const isPending = searchParams.get("pending") === "true";
 
   const [text, setText] = useState("");
   const [users, setUsers] = useState<any[]>([]);
+  const [typingUsers, setTypingUsers] = useState<any[]>([]);
   const [refreshJoinRequests, setRefreshJoinRequests] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
   const [joined, setJoined] = useState(false);
-  const [guestBlocked, setGuestBlocked] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
 
   const [room, setRoom] = useState<RoomState>({
@@ -53,9 +52,7 @@ export default function Editor({
     isGuestRoom: false,
   });
 
-  /* -------------------------------------------------------------------------- */
-  /*                               Fetch Room Meta                              */
-  /* -------------------------------------------------------------------------- */
+  /* ---------------- Fetch Room Meta ---------------- */
 
   useEffect(() => {
     const fetchMeta = async () => {
@@ -80,9 +77,7 @@ export default function Editor({
     fetchMeta();
   }, [roomId]);
 
-  /* -------------------------------------------------------------------------- */
-  /*                               Join Socket Room                             */
-  /* -------------------------------------------------------------------------- */
+  /* ---------------- Join Socket Room ---------------- */
 
   const joinSocketRoom = () => {
     refreshSocketAuth();
@@ -110,43 +105,18 @@ export default function Editor({
     };
   }, [isPending, room.currentUserId, joined]);
 
-  /* -------------------------------------------------------------------------- */
-  /*                               Socket Listeners                             */
-  /* -------------------------------------------------------------------------- */
+  /* ---------------- Socket Listeners ---------------- */
 
   useEffect(() => {
     if (!joined) return;
 
     const handleUserList = (list: any[]) => setUsers(list);
     const handleTextUpdate = (value: string) => setText(value);
-    const handleJoinRequestCreated = () => setRefreshJoinRequests((v) => v + 1);
-
-    const handleJoinDenied = ({ reason }: { reason: string }) => {
-      alert(reason || "Access denied");
-      router.push("/");
-    };
-
-    const handleRoomAbandoned = () => {
-      alert("The room owner has left. This room is now closed.");
-      router.push("/");
-    };
-
-    const handleKicked = () => {
-      alert("You were removed from the room.");
-      router.push("/");
-    };
-
-    const handleGuestLimit = () => {
-      setGuestBlocked(true);
-    };
+    const handleTypingUpdate = (list: any[]) => setTypingUsers(list);
 
     socket.on("user-list", handleUserList);
     socket.on("text-update", handleTextUpdate);
-    socket.on("guest-limit-reached", handleGuestLimit);
-    socket.on("join-request-created", handleJoinRequestCreated);
-    socket.on("join-denied", handleJoinDenied);
-    socket.on("room-abandoned", handleRoomAbandoned);
-    socket.on("kicked", handleKicked);
+    socket.on("typing-update", handleTypingUpdate);
 
     socket.on("room-settings-updated", (data) => {
       setRoom((prev) => ({ ...prev, ...data }));
@@ -162,19 +132,13 @@ export default function Editor({
 
       socket.off("user-list", handleUserList);
       socket.off("text-update", handleTextUpdate);
-      socket.off("guest-limit-reached", handleGuestLimit);
-      socket.off("join-request-created", handleJoinRequestCreated);
-      socket.off("join-denied", handleJoinDenied);
-      socket.off("room-abandoned", handleRoomAbandoned);
-      socket.off("kicked", handleKicked);
+      socket.off("typing-update", handleTypingUpdate);
       socket.off("room-settings-updated");
       socket.off("room-expired");
     };
   }, [joined]);
 
-  /* -------------------------------------------------------------------------- */
-  /*                               Pending UI                                   */
-  /* -------------------------------------------------------------------------- */
+  /* ---------------- Render ---------------- */
 
   if (isPending && !joined) {
     return (
@@ -189,15 +153,9 @@ export default function Editor({
     );
   }
 
-  /* -------------------------------------------------------------------------- */
-  /*                               Render                                        */
-  /* -------------------------------------------------------------------------- */
-
   return (
     <div className="flex h-screen overflow-hidden relative">
-      {/* Main Editor Area */}
       <div className="flex-1 flex flex-col border-r border-neutral-800">
-        {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto px-6 py-8 space-y-6">
           <RoomHeader
             roomId={roomId}
@@ -205,18 +163,13 @@ export default function Editor({
             isOwner={room.isOwner}
             roomName={room.name}
             expiresAt={room.expiresAt}
+            typingUsers={typingUsers}
+            currentUserId={room.currentUserId}
             onOpenSettings={() => setShowSettings(true)}
             onOpenParticipants={() => setShowParticipants(true)}
           />
 
           <RoomStatus room={room} />
-
-          {guestBlocked && (
-            <div className="rounded-lg border border-yellow-500/40 bg-yellow-500/10 px-4 py-3 text-sm text-yellow-400">
-              Guest edit limit reached (15 edits). Please sign in for unlimited
-              collaboration.
-            </div>
-          )}
 
           {room.isOwner && !room.isGuestRoom && (
             <JoinRequests roomId={roomId} refreshKey={refreshJoinRequests} />
@@ -224,10 +177,10 @@ export default function Editor({
 
           <TextEditor
             text={text}
-            isReadOnly={room.isReadOnly || guestBlocked}
+            isReadOnly={room.isReadOnly}
             isOwner={room.isOwner}
+            roomId={roomId}
             onChange={(value) => {
-              if (guestBlocked) return;
               setText(value);
               socket.emit("text-update", { roomId, text: value });
             }}
@@ -246,7 +199,6 @@ export default function Editor({
         </div>
       </div>
 
-      {/* Sidebar */}
       <ParticipantsList
         users={users}
         isOwner={room.isOwner}

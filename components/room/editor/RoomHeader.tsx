@@ -5,12 +5,20 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 
+type TypingUser = {
+  id: string;
+  name: string;
+  type?: string;
+};
+
 export default function RoomHeader({
   roomId,
   code,
   roomName,
   isOwner,
   expiresAt,
+  typingUsers,
+  currentUserId,
   onOpenSettings,
   onOpenParticipants,
 }: {
@@ -19,6 +27,8 @@ export default function RoomHeader({
   roomName: string;
   isOwner: boolean;
   expiresAt?: string | null;
+  typingUsers: TypingUser[];
+  currentUserId: string;
   onOpenSettings: () => void;
   onOpenParticipants: () => void;
 }) {
@@ -62,7 +72,6 @@ export default function RoomHeader({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Fallback for older browsers
       const textarea = document.createElement("textarea");
       textarea.value = shareLink;
       document.body.appendChild(textarea);
@@ -91,6 +100,22 @@ export default function RoomHeader({
     }
   }
 
+  /* ---------------- Typing Logic ---------------- */
+
+  const othersTyping = typingUsers?.filter((u) => u.id !== currentUserId) || [];
+
+  const typingText =
+    othersTyping.length === 1
+      ? `${othersTyping[0].name} is typing...`
+      : othersTyping.length > 1
+        ? `${othersTyping
+            .slice(0, 2)
+            .map((u) => u.name)
+            .join(", ")}${
+            othersTyping.length > 2 ? ` +${othersTyping.length - 2} more` : ""
+          } are typing...`
+        : null;
+
   /* ---------------- Render ---------------- */
 
   return (
@@ -117,6 +142,13 @@ export default function RoomHeader({
 
           <p className="font-mono text-neutral-500 text-sm mt-1">{roomId}</p>
 
+          {/* Typing Indicator */}
+          {typingText && (
+            <p className="text-xs text-blue-400 mt-1 animate-pulse">
+              {typingText}
+            </p>
+          )}
+
           <div className="mt-2 flex items-center gap-2 text-sm text-neutral-400 flex-wrap">
             <span>
               Code: <span className="font-mono">{code}</span>
@@ -133,7 +165,6 @@ export default function RoomHeader({
 
         {/* Right Section */}
         <div className="flex gap-2 items-center flex-wrap">
-          {/* Mobile Participants Button */}
           <button
             onClick={onOpenParticipants}
             className="lg:hidden px-3 py-1 text-sm bg-neutral-800 rounded hover:bg-neutral-700 transition"

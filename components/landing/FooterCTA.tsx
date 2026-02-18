@@ -26,7 +26,7 @@ export default function FooterCTA() {
         className="mt-6"
       >
         <Link
-          href="/register"
+          href="/share"
           className="inline-block rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 px-10 py-4 text-lg font-semibold transition hover:opacity-90"
         >
           Create Your First Room

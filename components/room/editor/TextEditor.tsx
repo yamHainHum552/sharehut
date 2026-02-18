@@ -1,19 +1,62 @@
-import { useState } from "react";
+"use client";
+
+import { useState, useRef, useEffect } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
+import { socket } from "@/lib/socket";
 
 export default function TextEditor({
   text,
   isReadOnly,
   isOwner,
+  roomId,
   onChange,
 }: {
   text: string;
   isReadOnly: boolean;
   isOwner: boolean;
+  roomId: string;
   onChange: (value: string) => void;
 }) {
   const [copied, setCopied] = useState(false);
+
+  const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+  const isTyping = useRef(false);
+
+  /* ---------------- Typing Logic ---------------- */
+
+  const handleTyping = () => {
+    if (isReadOnly && !isOwner) return;
+
+    if (!isTyping.current) {
+      socket.emit("typing-start", { roomId });
+      isTyping.current = true;
+    }
+
+    if (typingTimeout.current) {
+      clearTimeout(typingTimeout.current);
+    }
+
+    typingTimeout.current = setTimeout(() => {
+      socket.emit("typing-stop", { roomId });
+      isTyping.current = false;
+    }, 2000);
+  };
+
+  /* Cleanup on unmount */
+  useEffect(() => {
+    return () => {
+      if (isTyping.current) {
+        socket.emit("typing-stop", { roomId });
+      }
+
+      if (typingTimeout.current) {
+        clearTimeout(typingTimeout.current);
+      }
+    };
+  }, [roomId]);
+
+  /* ---------------- Copy ---------------- */
 
   const handleCopy = async () => {
     try {
@@ -24,6 +67,8 @@ export default function TextEditor({
       alert("Failed to copy text");
     }
   };
+
+  /* ---------------- Reset ---------------- */
 
   const handleReset = () => {
     if (!isOwner) return;
@@ -36,6 +81,8 @@ export default function TextEditor({
     onChange("");
   };
 
+  /* ---------------- Render ---------------- */
+
   return (
     <Card>
       <div className="flex justify-between items-center mb-4">
@@ -44,7 +91,6 @@ export default function TextEditor({
         </div>
 
         <div className="flex gap-3">
-          {/* Copy Button */}
           <Button
             variant="secondary"
             onClick={handleCopy}
@@ -53,7 +99,6 @@ export default function TextEditor({
             {copied ? "Copied!" : "Copy"}
           </Button>
 
-          {/* Reset Button (Owner Only) */}
           {isOwner && (
             <Button
               variant="danger"
@@ -69,7 +114,10 @@ export default function TextEditor({
       <textarea
         value={text}
         disabled={isReadOnly && !isOwner}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onChange(e.target.value);
+          handleTyping();
+        }}
         className={`w-full h-[60vh] p-4 font-mono rounded resize-none transition outline-none
           ${
             isReadOnly && !isOwner
