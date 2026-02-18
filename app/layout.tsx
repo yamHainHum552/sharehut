@@ -79,6 +79,8 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="color-scheme" content="dark" />
+
         <Script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${process.env.NEXT_PUBLIC_GOOGLE_ADSENSE_PUBLISHER_ID}`}
