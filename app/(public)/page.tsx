@@ -4,6 +4,7 @@ import FooterCTA from "@/components/landing/FooterCTA";
 import { cookies } from "next/headers";
 import CookieBanner from "@/components/landing/CookieBanner";
 import QuickStart from "@/components/landing/QuickStart";
+import TestimonialsSection from "@/components/landing/Testimonials";
 export default async function LandingPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -13,6 +14,7 @@ export default async function LandingPage() {
       <QuickStart />
       <FeaturesSection />
       <FooterCTA />
+      <TestimonialsSection />
       <CookieBanner />
     </main>
   );

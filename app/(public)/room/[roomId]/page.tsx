@@ -2,15 +2,13 @@ import type { Metadata } from "next";
 import RoomGate from "@/components/room/RoomGate";
 
 interface RoomPageProps {
-  params: Promise<{
-    roomId: string;
-  }>;
+  params: Promise<{ roomId: string }>;
   searchParams: Promise<{
     [key: string]: string | string[] | undefined;
   }>;
 }
 
-/* ---------- SEO (async params ONLY here) ---------- */
+/* ---------------- Metadata ---------------- */
 
 export async function generateMetadata({
   params,
@@ -28,6 +26,8 @@ export async function generateMetadata({
     },
   };
 }
+
+/* ---------------- Page ---------------- */
 
 export default async function RoomPage({
   params,

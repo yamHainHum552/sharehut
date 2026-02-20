@@ -7,14 +7,17 @@ import {
 
 const API_URL = `${BACKEND_URL}/api`;
 
-export const api = async (path: string, method: string, body?: any) => {
+export const api = async (
+  path: string,
+  method: string,
+  body?: any,
+  isFormData: boolean = false,
+) => {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  const headers: Record<string, string> = {};
 
-  // ✅ Inject guest identity
+  // Guest identity headers
   if (typeof window !== "undefined") {
     const guestOwnerToken = getGuestToken();
 
@@ -26,11 +29,15 @@ export const api = async (path: string, method: string, body?: any) => {
     }
   }
 
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const res = await fetch(`${API_URL}${normalizedPath}`, {
     method,
     credentials: "include",
     headers,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
   });
 
   const data = await res.json();

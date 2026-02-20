@@ -1,16 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { socket } from "@/lib/socket";
 import { api } from "@/lib/api";
 import { refreshSocketAuth } from "@/lib/socketAuth";
+
 import RoomHeader from "./RoomHeader";
 import RoomStatus from "./RoomStatus";
 import ParticipantsList from "./ParticipantsList";
-import TextEditor from "./TextEditor";
 import RoomSettingsModal from "./RoomSettingsModal";
-import JoinRequests from "@/components/room/JoinRequests";
+import WorkspaceToolbar from "./WorkspaceToolbar";
+import TextWorkspace from "./workspace/TextWorkspace";
+import FileWorkspace from "./workspace/FilesWorkspace";
+import DrawWorkspace from "./workspace/DrawWorkspace";
+
+type WorkspaceMode = "text" | "files" | "draw";
 
 interface RoomState {
   isOwner: boolean;
@@ -34,13 +39,13 @@ export default function Editor({
   const router = useRouter();
   const isPending = searchParams.get("pending") === "true";
 
+  const [mode, setMode] = useState<WorkspaceMode>("text");
   const [text, setText] = useState("");
   const [users, setUsers] = useState<any[]>([]);
   const [typingUsers, setTypingUsers] = useState<any[]>([]);
-  const [refreshJoinRequests, setRefreshJoinRequests] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
-  const [joined, setJoined] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
+  const [joined, setJoined] = useState(false);
 
   const [room, setRoom] = useState<RoomState>({
     isOwner: false,
@@ -52,7 +57,9 @@ export default function Editor({
     isGuestRoom: false,
   });
 
-  /* ---------------- Fetch Room Meta ---------------- */
+  /* -------------------------------------------------- */
+  /*                   Fetch Room Meta                  */
+  /* -------------------------------------------------- */
 
   useEffect(() => {
     const fetchMeta = async () => {
@@ -75,83 +82,112 @@ export default function Editor({
     };
 
     fetchMeta();
+  }, [roomId, router]);
+
+  /* -------------------------------------------------- */
+  /*                 Stable Join Function               */
+  /* -------------------------------------------------- */
+
+  const emitJoin = useCallback(() => {
+    socket.emit("join-room", { roomId });
   }, [roomId]);
 
-  /* ---------------- Join Socket Room ---------------- */
-
-  const joinSocketRoom = () => {
-    refreshSocketAuth();
-    socket.emit("join-room", { roomId });
-    setJoined(true);
-  };
+  /* -------------------------------------------------- */
+  /*              Join Room (Connection Safe)           */
+  /* -------------------------------------------------- */
 
   useEffect(() => {
-    if (!isPending && !joined) {
-      joinSocketRoom();
+    if (isPending) return;
+
+    refreshSocketAuth();
+
+    if (socket.connected) {
+      emitJoin();
+    } else {
+      socket.connect();
+      socket.once("connect", emitJoin);
     }
 
-    const handleApproved = async ({ userId }: { userId: string }) => {
-      if (userId === room.currentUserId) {
-        await api("/rooms/join", "POST", { roomCode });
-        router.replace(`/room/${roomId}`);
-        joinSocketRoom();
-      }
-    };
-
-    socket.on("join-request-approved", handleApproved);
-
     return () => {
-      socket.off("join-request-approved", handleApproved);
+      socket.off("connect", emitJoin);
     };
-  }, [isPending, room.currentUserId, joined]);
+  }, [emitJoin, isPending]);
 
-  /* ---------------- Socket Listeners ---------------- */
+  /* -------------------------------------------------- */
+  /*           Auto Re-Join On Reconnect (Important)   */
+  /* -------------------------------------------------- */
 
   useEffect(() => {
-    if (!joined) return;
+    const handleReconnect = () => {
+      emitJoin();
+    };
 
-    const handleUserList = (list: any[]) => setUsers(list);
-    const handleTextUpdate = (value: string) => setText(value);
-    const handleTypingUpdate = (list: any[]) => setTypingUsers(list);
+    socket.on("reconnect", handleReconnect);
+
+    return () => {
+      socket.off("reconnect", handleReconnect);
+    };
+  }, [emitJoin]);
+
+  /* -------------------------------------------------- */
+  /*                Socket Event Listeners              */
+  /* -------------------------------------------------- */
+
+  useEffect(() => {
+    const handleUserList = (list: any[]) => {
+      setUsers(list);
+      setJoined(true);
+    };
+
+    const handleTextUpdate = (newText: string) => {
+      setText(newText);
+    };
+
+    const handleTypingUpdate = (list: any[]) => {
+      setTypingUsers(list);
+    };
+
+    const handleRoomSettingsUpdated = (data: any) => {
+      setRoom((prev) => ({ ...prev, ...data }));
+    };
+
+    const handleRoomExpired = () => {
+      alert("Room expired");
+      router.push("/");
+    };
 
     socket.on("user-list", handleUserList);
     socket.on("text-update", handleTextUpdate);
     socket.on("typing-update", handleTypingUpdate);
-
-    socket.on("room-settings-updated", (data) => {
-      setRoom((prev) => ({ ...prev, ...data }));
-    });
-
-    socket.on("room-expired", () => {
-      alert("This room has expired.");
-      router.push("/");
-    });
+    socket.on("room-settings-updated", handleRoomSettingsUpdated);
+    socket.on("room-expired", handleRoomExpired);
 
     return () => {
-      socket.emit("leave-room");
-
       socket.off("user-list", handleUserList);
       socket.off("text-update", handleTextUpdate);
       socket.off("typing-update", handleTypingUpdate);
-      socket.off("room-settings-updated");
-      socket.off("room-expired");
-    };
-  }, [joined]);
+      socket.off("room-settings-updated", handleRoomSettingsUpdated);
+      socket.off("room-expired", handleRoomExpired);
 
-  /* ---------------- Render ---------------- */
+      socket.emit("leave-room");
+    };
+  }, [router]);
+
+  /* -------------------------------------------------- */
+  /*                       Pending                      */
+  /* -------------------------------------------------- */
 
   if (isPending && !joined) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <h2 className="text-2xl font-semibold">Waiting for approval...</h2>
-          <p className="text-neutral-400">
-            The room owner must approve your request.
-          </p>
-        </div>
+        Waiting for approval...
       </div>
     );
   }
+
+  /* -------------------------------------------------- */
+  /*                        Render                      */
+  /* -------------------------------------------------- */
 
   return (
     <div className="flex h-screen overflow-hidden relative">
@@ -171,20 +207,26 @@ export default function Editor({
 
           <RoomStatus room={room} />
 
-          {room.isOwner && !room.isGuestRoom && (
-            <JoinRequests roomId={roomId} refreshKey={refreshJoinRequests} />
+          <WorkspaceToolbar mode={mode} setMode={setMode} />
+
+          {mode === "text" && (
+            <TextWorkspace
+              text={text}
+              setText={setText}
+              roomId={roomId}
+              room={room}
+            />
           )}
 
-          <TextEditor
-            text={text}
-            isReadOnly={room.isReadOnly}
-            isOwner={room.isOwner}
-            roomId={roomId}
-            onChange={(value) => {
-              setText(value);
-              socket.emit("text-update", { roomId, text: value });
-            }}
-          />
+          {mode === "files" && <FileWorkspace roomId={roomId} room={room} />}
+
+          {mode === "draw" && (
+            <DrawWorkspace
+              roomId={roomId}
+              isOwner={room.isOwner}
+              isReadOnly={room.isReadOnly}
+            />
+          )}
 
           {showSettings && (
             <RoomSettingsModal

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
+import { Copy, Users, Clock } from "lucide-react";
 
 type TypingUser = {
   id: string;
@@ -63,42 +64,24 @@ export default function RoomHeader({
   /* ---------------- Copy Invite Link ---------------- */
 
   const copyInviteLink = async () => {
-    if (typeof window === "undefined") return;
-
     const shareLink = `${window.location.origin}/join/${code}`;
-
-    try {
-      await navigator.clipboard.writeText(shareLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    } catch {
-      const textarea = document.createElement("textarea");
-      textarea.value = shareLink;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textarea);
-
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-    }
+    await navigator.clipboard.writeText(shareLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   /* ---------------- Time Formatting ---------------- */
 
-  let formattedTime = null;
-  let isDanger = false;
+  const formattedTime = useMemo(() => {
+    if (remaining === null) return null;
 
-  if (remaining !== null) {
     const minutes = Math.floor((remaining / 1000 / 60) % 60);
     const seconds = Math.floor((remaining / 1000) % 60);
 
-    formattedTime = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  }, [remaining]);
 
-    if (remaining < 60000) {
-      isDanger = true;
-    }
-  }
+  const isDanger = remaining !== null && remaining < 60000;
 
   /* ---------------- Typing Logic ---------------- */
 
@@ -120,55 +103,79 @@ export default function RoomHeader({
 
   return (
     <Card>
-      <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-        {/* Left Section */}
-        <div>
-          <h2 className="text-xl font-semibold flex items-center gap-3 flex-wrap">
-            {roomName}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+        {/* LEFT */}
+        <div className="flex-1">
+          {/* Room Title */}
+          <div className="flex flex-wrap items-center gap-3">
+            <h2 className="text-2xl font-semibold text-white tracking-tight">
+              {roomName}
+            </h2>
 
             {formattedTime && (
-              <span
-                className={`text-xs px-3 py-1 rounded-full font-mono
-                ${
-                  isDanger
-                    ? "bg-red-500/20 text-red-400 border border-red-500/40"
-                    : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/30"
-                }`}
+              <div
+                className={`
+                  flex items-center gap-2
+                  px-3 py-1 rounded-full text-xs font-mono
+                  border
+                  ${
+                    isDanger
+                      ? "bg-red-500/20 text-red-400 border-red-500/40"
+                      : "bg-yellow-500/10 text-yellow-400 border-yellow-500/30"
+                  }
+                `}
               >
-                ⏳ {formattedTime}
-              </span>
+                <Clock size={12} />
+                {formattedTime}
+              </div>
             )}
-          </h2>
+          </div>
 
-          <p className="font-mono text-neutral-500 text-sm mt-1">{roomId}</p>
+          {/* Room ID */}
+          <p className="mt-2 text-xs text-neutral-500 font-mono">
+            Room ID: {roomId}
+          </p>
 
           {/* Typing Indicator */}
           {typingText && (
-            <p className="text-xs text-blue-400 mt-1 animate-pulse">
+            <p className="mt-2 text-sm text-blue-400 animate-pulse">
               {typingText}
             </p>
           )}
 
-          <div className="mt-2 flex items-center gap-2 text-sm text-neutral-400 flex-wrap">
-            <span>
+          {/* Invite Section */}
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="px-3 py-1 rounded-lg bg-neutral-900 border border-neutral-800 text-sm text-neutral-300">
               Code: <span className="font-mono">{code}</span>
-            </span>
+            </div>
 
             <button
               onClick={copyInviteLink}
-              className="px-2 py-1 text-xs bg-neutral-800 rounded hover:bg-neutral-700 transition"
+              className="
+                flex items-center gap-2
+                px-3 py-1 rounded-lg text-sm
+                bg-neutral-900 border border-neutral-800
+                hover:bg-neutral-800 transition
+              "
             >
-              {copied ? "Link Copied" : "Copy Invite Link"}
+              <Copy size={14} />
+              {copied ? "Copied" : "Copy Invite Link"}
             </button>
           </div>
         </div>
 
-        {/* Right Section */}
-        <div className="flex gap-2 items-center flex-wrap">
+        {/* RIGHT */}
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={onOpenParticipants}
-            className="lg:hidden px-3 py-1 text-sm bg-neutral-800 rounded hover:bg-neutral-700 transition"
+            className="
+              lg:hidden flex items-center gap-2
+              px-3 py-2 rounded-lg text-sm
+              bg-neutral-900 border border-neutral-800
+              hover:bg-neutral-800 transition
+            "
           >
+            <Users size={14} />
             Participants
           </button>
 

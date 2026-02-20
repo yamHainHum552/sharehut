@@ -20,7 +20,7 @@ const links = [
 export default function NetworkBackground() {
   return (
     <motion.svg
-      className="absolute inset-0 h-full w-full opacity-[0.1]"
+      className="absolute inset-0 h-full w-full opacity-[0.3]"
       viewBox="0 0 1200 600"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
