@@ -5,19 +5,19 @@ import { Quote } from "lucide-react";
 
 const testimonials = [
   {
-    name: "Aarav Sharma",
+    name: "Abhishek Acharya",
     role: "Full-Stack Developer",
     text: "ShareHut feels instant. The real-time sync is smooth and the expiring rooms are perfect for focused collaboration sessions.",
     initials: "AS",
   },
   {
-    name: "Emily Carter",
+    name: "Anish Shahi",
     role: "Product Manager",
     text: "We use ShareHut during sprint planning. No friction. No setup. Just create, share, and collaborate.",
     initials: "EC",
   },
   {
-    name: "Rohan Mehta",
+    name: "Abhiyan Niraula",
     role: "CS Student",
     text: "Guest rooms are brilliant. I can instantly share snippets during labs without forcing signups.",
     initials: "RM",

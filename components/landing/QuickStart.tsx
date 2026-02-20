@@ -7,6 +7,7 @@ import { setGuestToken, getGuestToken } from "@/lib/guest";
 import { refreshSocketAuth } from "@/lib/socketAuth";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { Plus, LogIn } from "lucide-react";
 
 export default function QuickStart() {
   const router = useRouter();
@@ -64,9 +65,7 @@ export default function QuickStart() {
       refreshSocketAuth();
 
       if (res.requiresApproval) {
-        router.push(
-          `/room/${res.roomId}?code=${roomCode}&pending=true`
-        );
+        router.push(`/room/${res.roomId}?code=${roomCode}&pending=true`);
       } else {
         router.push(`/room/${res.roomId}?code=${roomCode}`);
       }
@@ -77,66 +76,74 @@ export default function QuickStart() {
     }
   };
 
-  /* ---------------- Render ---------------- */
-
   return (
-    <section className="w-full max-w-3xl mx-auto mt-16 px-6">
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 shadow-xl">
-        <h2 className="text-2xl font-semibold text-center">
-          Start Sharing Instantly
-        </h2>
-        <p className="text-neutral-400 text-center mt-2 text-sm">
-          No sign-up required. Rooms expire automatically after 1 hour.
-        </p>
+    <section className="relative w-full max-w-4xl mx-auto mt-24 px-6">
+      {/* Background Glow */}
+      <div className="absolute inset-0 blur-3xl opacity-20 bg-gradient-to-r from-purple-600 to-blue-600 pointer-events-none" />
+
+      <div className="relative bg-neutral-900/80 backdrop-blur-xl border border-neutral-800 rounded-3xl p-10 shadow-2xl">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h2 className="text-3xl font-semibold tracking-tight">
+            Start Sharing Instantly
+          </h2>
+          <p className="text-neutral-400 mt-3 text-sm">
+            No sign-up required. Secure temporary rooms expire automatically
+            after 1 hour.
+          </p>
+        </div>
 
         {error && (
-          <p className="mt-6 text-sm text-red-500 text-center">
+          <div className="mb-8 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 text-center">
             {error}
-          </p>
+          </div>
         )}
 
-        {/* Create Room */}
-        <div className="mt-8 space-y-4">
-          <Input
-            placeholder="Enter room name"
-            value={roomName}
-            onChange={(e) => setRoomName(e.target.value)}
-          />
+        <div className="grid md:grid-cols-2 gap-10">
+          {/* Create Room */}
+          <div className="space-y-5">
+            <h3 className="text-sm uppercase tracking-wide text-neutral-500">
+              Create a Room
+            </h3>
 
-          <Button
-            className="w-full"
-            onClick={handleCreate}
-            disabled={loadingCreate}
-          >
-            {loadingCreate ? "Creating..." : "Create Instant Room"}
-          </Button>
-        </div>
+            <Input
+              placeholder="Enter room name"
+              value={roomName}
+              onChange={(e) => setRoomName(e.target.value)}
+            />
 
-        {/* Divider */}
-        <div className="my-8 border-t border-neutral-800 relative">
-          <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-neutral-900 px-3 text-xs text-neutral-500">
-            OR
-          </span>
-        </div>
+            <Button
+              className="w-full flex items-center justify-center gap-2"
+              onClick={handleCreate}
+              disabled={loadingCreate}
+            >
+              <Plus size={16} />
+              {loadingCreate ? "Creating..." : "Create Instant Room"}
+            </Button>
+          </div>
 
-        {/* Join Room */}
-        <div className="space-y-4">
-          <Input
-            placeholder="Enter room code (SH-XXXXXX)"
-            value={roomCode}
-            onChange={(e) =>
-              setRoomCode(e.target.value.toUpperCase())
-            }
-          />
+          {/* Join Room */}
+          <div className="space-y-5">
+            <h3 className="text-sm uppercase tracking-wide text-neutral-500">
+              Join Existing Room
+            </h3>
 
-          <Button
-            variant="secondary"
-            className="w-full"
-            onClick={handleJoin}
-            disabled={loadingJoin}
-          >
-            {loadingJoin ? "Joining..." : "Join Room"}
-          </Button>
+            <Input
+              placeholder="Enter room code (SH-XXXXXX)"
+              value={roomCode}
+              onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+            />
+
+            <Button
+              variant="secondary"
+              className="w-full flex items-center justify-center gap-2"
+              onClick={handleJoin}
+              disabled={loadingJoin}
+            >
+              <LogIn size={16} />
+              {loadingJoin ? "Joining..." : "Join Room"}
+            </Button>
+          </div>
         </div>
       </div>
     </section>

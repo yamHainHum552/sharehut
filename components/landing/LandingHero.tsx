@@ -52,21 +52,21 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
               Start Sharing
             </Button>
 
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => router.push("/login")}
-            >
-              Sign In
-            </Button>
-
-            {isLoggedIn && (
+            {isLoggedIn ? (
               <Button
                 variant="primary"
                 size="lg"
                 onClick={() => router.push("/dashboard")}
               >
                 Dashboard
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => router.push("/login")}
+              >
+                Sign In
               </Button>
             )}
           </motion.div>
