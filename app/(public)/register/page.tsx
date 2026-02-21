@@ -2,18 +2,14 @@ import type { Metadata } from "next";
 import Register from "./Register";
 
 export const metadata: Metadata = {
-  title: "Create an Account",
+  title: "Create an Account — ShareHut",
+
   description:
-    "Create your ShareHut account to securely share text in real-time with private rooms.",
-  keywords: [
-    "ShareHut register",
-    "secure text sharing",
-    "real-time collaboration",
-    "private rooms",
-  ],
+    "Sign up for ShareHut to create secure real-time collaboration rooms for text editing, file sharing, and online whiteboard sessions.",
+
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
   },
 };
 

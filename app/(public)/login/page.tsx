@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Login from "./Login";
 
 export const metadata: Metadata = {
-  title: "Login",
+  title: "Login — ShareHut",
+
   description:
-    "Log in to ShareHut to access your private rooms and share text securely in real time.",
-  keywords: ["ShareHut login", "secure login", "real-time text sharing"],
+    "Sign in to your ShareHut account to manage secure collaboration rooms for real-time text, file sharing, and whiteboard sessions.",
+
   robots: {
-    index: true,
-    follow: true,
+    index: false,
+    follow: false,
   },
 };
 

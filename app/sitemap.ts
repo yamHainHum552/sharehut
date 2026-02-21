@@ -5,21 +5,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
   return [
-    // 🔥 Core Pages (Highest Priority)
+    // 🏠 Homepage (Highest Priority)
     {
       url: baseUrl,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1.0,
     },
+
+    // 🚀 Core Feature Pages
     {
-      url: `${baseUrl}/share`,
+      url: `${baseUrl}/quickshare`, // ensure this matches your real route
       lastModified: now,
       changeFrequency: "weekly",
-      priority: 1.0,
+      priority: 0.9,
     },
-
-    // 🚀 Important Business / Feature Pages
     {
       url: `${baseUrl}/services`,
       lastModified: now,
@@ -32,8 +32,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/faqs`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
 
-    // 📜 Legal Pages (Still Important for Trust & SEO)
+    // 📜 Trust & Legal Pages
     {
       url: `${baseUrl}/privacy`,
       lastModified: now,
@@ -46,19 +52,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly",
       priority: 0.5,
     },
-
-    // 🔐 Authentication Pages (Low SEO Value)
     {
-      url: `${baseUrl}/login`,
+      url: `${baseUrl}/contact`,
       lastModified: now,
       changeFrequency: "yearly",
-      priority: 0.2,
-    },
-    {
-      url: `${baseUrl}/register`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.2,
+      priority: 0.5,
     },
   ];
 }

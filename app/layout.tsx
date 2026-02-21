@@ -6,27 +6,35 @@ import { getServerAuth } from "@/lib/auth-server";
 import Script from "next/script";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://sharehutlive.com"),
+
   title: {
-    default: "ShareHutLive — Secure Real-Time Text Sharing",
+    default:
+      "ShareHut — Real-Time Collaboration Rooms (Text, Files & Whiteboard)",
     template: "%s | ShareHut",
   },
+
   description:
-    "ShareHut lets you securely create rooms and collaborate with others in real time. Fast, private, and reliable text sharing built for teams and individuals.",
+    "ShareHut lets you create secure real-time collaboration rooms for live text editing, file sharing, and online whiteboard drawing. No signup required. Private, fast, and temporary workspace sharing.",
+
   applicationName: "ShareHut",
-  generator: "Next.js",
+
   keywords: [
     "real-time collaboration",
-    "rooms",
-    "secure text sharing",
-    "online collaboration tool",
-    "private rooms",
-    "team collaboration",
+    "online whiteboard",
+    "live text sharing",
+    "instant file sharing",
+    "temporary collaboration rooms",
+    "secure workspace sharing",
+    "real-time drawing tool",
+    "private collaboration tool",
+    "no signup collaboration",
     "ShareHut",
   ],
+
   authors: [{ name: "ShareHut Team" }],
   creator: "ShareHut",
   publisher: "ShareHut",
-  metadataBase: new URL("https://sharehutlive.com"),
 
   alternates: {
     canonical: "/",
@@ -41,34 +49,39 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 
   openGraph: {
-    title: "ShareHutLive — Secure Real-Time Text Sharing",
-    description:
-      "Create secure rooms and collaborate instantly with ShareHut. Built for speed, privacy, and real-time teamwork.",
+    type: "website",
+    locale: "en_US",
     url: "https://sharehutlive.com",
     siteName: "ShareHut",
+    title: "ShareHut — Real-Time Text, File & Whiteboard Collaboration",
+    description:
+      "Create secure collaboration rooms instantly. Share live text, upload files, and draw together in real time. Private and temporary workspaces with no signup required.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "ShareHut — Secure Real-Time Text Sharing",
+        alt: "ShareHut — Real-Time Collaboration Rooms",
       },
     ],
-    locale: "en_US",
-    type: "website",
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "ShareHut — Secure Real-Time Text Sharing",
-    description: "Create secure rooms and collaborate instantly with ShareHut.",
+    title: "ShareHut — Real-Time Collaboration Rooms",
+    description:
+      "Live text editing, file sharing and online whiteboard drawing in secure temporary rooms.",
     images: ["/og-image.png"],
     creator: "@sharehut",
   },
 
+  robots: {
+    index: true,
+    follow: true,
+  },
+
   category: "technology",
 };
-
 export default async function RootLayout({
   children,
 }: {
@@ -80,6 +93,39 @@ export default async function RootLayout({
     <html lang="en">
       <head>
         <meta name="color-scheme" content="dark" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "ShareHut",
+              url: "https://sharehutlive.com",
+              logo: "https://sharehutlive.com/logo.png",
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "customer support",
+                email: "sharehutlive@gmail.com",
+              },
+            }),
+          }}
+        />
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "ShareHut",
+              applicationCategory: "BusinessApplication",
+              operatingSystem: "Web",
+              url: "https://sharehutlive.com",
+              description:
+                "ShareHut provides secure real-time collaboration rooms for live text editing, file sharing, and online whiteboard drawing.",
+            }),
+          }}
+        />
 
         <Script
           async

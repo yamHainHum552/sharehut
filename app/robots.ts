@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/login", "/register", "/dashboard"],
+        disallow: ["/login", "/register", "/dashboard", "/myrooms", "/profile"],
       },
     ],
     sitemap: "https://sharehutlive.com/sitemap.xml",

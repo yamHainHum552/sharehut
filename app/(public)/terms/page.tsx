@@ -1,11 +1,39 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service",
-  description: "Review the Terms of Service for using ShareHut Live.",
+  title: "Terms of Service — ShareHut",
+
+  description:
+    "Review the Terms of Service for using ShareHut, including policies for real-time collaboration rooms, file sharing, online whiteboard usage, and account responsibilities.",
+
+  keywords: [
+    "ShareHut terms",
+    "collaboration platform terms",
+    "real-time collaboration policy",
+    "file sharing terms",
+    "online whiteboard terms of service",
+  ],
+
   alternates: {
     canonical: "https://sharehutlive.com/terms",
   },
+
+  openGraph: {
+    title: "Terms of Service — ShareHut",
+    description:
+      "Understand the terms governing the use of ShareHut’s real-time collaboration platform.",
+    url: "https://sharehutlive.com/terms",
+    siteName: "ShareHut",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary",
+    title: "Terms of Service — ShareHut",
+    description:
+      "Review the rules and policies for using ShareHut collaboration rooms.",
+  },
+
   robots: {
     index: true,
     follow: true,
@@ -25,8 +53,8 @@ export default function TermsPage() {
 
         <section className="space-y-6 text-neutral-300 leading-relaxed">
           <p>
-            By accessing or using ShareHut Live, you agree to these Terms of
-            Service. If you do not agree, please do not use the platform.
+            By accessing or using ShareHut, you agree to these Terms of Service.
+            If you do not agree, please do not use the platform.
           </p>
 
           <h2 className="text-2xl font-semibold text-white">
@@ -34,8 +62,9 @@ export default function TermsPage() {
           </h2>
 
           <p>
-            ShareHut Live provides real-time text collaboration through private
-            rooms. You agree to use the service lawfully.
+            ShareHut provides real-time collaboration through secure rooms
+            supporting live text editing, file sharing, and online whiteboard
+            drawing. You agree to use the service lawfully and responsibly.
           </p>
 
           <h2 className="text-2xl font-semibold text-white">
@@ -44,7 +73,8 @@ export default function TermsPage() {
 
           <p>
             You are responsible for maintaining the confidentiality of your
-            login credentials and all activity under your account.
+            login credentials and for all activity that occurs under your
+            account.
           </p>
 
           <h2 className="text-2xl font-semibold text-white">
@@ -53,55 +83,69 @@ export default function TermsPage() {
 
           <ul className="list-disc list-inside space-y-2">
             <li>Unauthorized access attempts</li>
-            <li>Spamming or abuse</li>
-            <li>Sharing harmful or illegal content</li>
-            <li>Attempting to disrupt system integrity</li>
+            <li>Spamming, abuse, or harassment</li>
+            <li>Sharing harmful, malicious, or illegal content</li>
+            <li>Uploading malicious files</li>
+            <li>Attempting to disrupt system integrity or security</li>
           </ul>
 
           <h2 className="text-2xl font-semibold text-white">
-            4. Room Ownership
+            4. Room Ownership & Content
           </h2>
 
           <p>
-            Room owners control membership and settings. ShareHut Live does not
-            moderate content in private rooms.
+            Room owners control membership, permissions, and settings within
+            their collaboration rooms. ShareHut does not actively monitor
+            private room content but reserves the right to act upon reported
+            violations.
           </p>
 
-          <h2 className="text-2xl font-semibold text-white">5. Termination</h2>
+          <h2 className="text-2xl font-semibold text-white">
+            5. Data & Content Responsibility
+          </h2>
+
+          <p>
+            Users are responsible for the content they share, including text,
+            uploaded files, and whiteboard drawings. ShareHut is not liable for
+            user-generated content.
+          </p>
+
+          <h2 className="text-2xl font-semibold text-white">6. Termination</h2>
 
           <p>
             We reserve the right to suspend or terminate accounts that violate
-            these terms.
+            these terms or engage in abusive or unlawful behavior.
           </p>
 
           <h2 className="text-2xl font-semibold text-white">
-            6. Limitation of Liability
+            7. Limitation of Liability
           </h2>
 
           <p>
-            ShareHut Live is provided "as is" without warranties. We are not
-            liable for data loss, interruptions, or damages arising from service
-            use.
+            ShareHut is provided "as is" without warranties of any kind. We are
+            not liable for data loss, interruptions, unauthorized access, or
+            damages arising from service use.
           </p>
 
           <h2 className="text-2xl font-semibold text-white">
-            7. Changes to Terms
+            8. Changes to Terms
           </h2>
 
           <p>
             We may update these terms periodically. Continued use of the service
-            constitutes acceptance.
+            after changes are published constitutes acceptance of the updated
+            terms.
           </p>
 
           <h2 className="text-2xl font-semibold text-white">
-            8. Governing Law
+            9. Governing Law
           </h2>
 
           <p>
             These terms are governed by applicable laws in your jurisdiction.
           </p>
 
-          <h2 className="text-2xl font-semibold text-white">9. Contact</h2>
+          <h2 className="text-2xl font-semibold text-white">10. Contact</h2>
 
           <p>
             For legal inquiries:
