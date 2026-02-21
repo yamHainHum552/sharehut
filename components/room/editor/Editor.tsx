@@ -103,18 +103,12 @@ export default function Editor({
 
     refreshSocketAuth();
 
-    if (socket.connected) {
-      emitJoin();
-    } else {
-      socket.connect();
-      socket.once("connect", emitJoin);
-    }
+    socket.once("connect", emitJoin);
 
     return () => {
       socket.off("connect", emitJoin);
     };
   }, [emitJoin, isPending]);
-
   /* -------------------------------------------------- */
   /*           Auto Re-Join On Reconnect (Important)   */
   /* -------------------------------------------------- */
