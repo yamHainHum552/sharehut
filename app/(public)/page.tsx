@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import CookieBanner from "@/components/landing/CookieBanner";
 import QuickStart from "@/components/landing/QuickStart";
 import TestimonialsSection from "@/components/landing/Testimonials";
+import BrandStatsSection from "@/components/landing/BrandStaticSection";
 
 export default async function LandingPage() {
   const cookieStore = await cookies();
@@ -17,6 +18,7 @@ export default async function LandingPage() {
 
       {/* 👇 Only show QuickStart if NOT logged in */}
       {!isLoggedIn && <QuickStart />}
+      <BrandStatsSection />
 
       <FeaturesSection />
       <TestimonialsSection />
