@@ -13,7 +13,11 @@ export default function WorkspaceToolbar({
   setMode: (m: Mode) => void;
   mobile?: boolean;
 }) {
-  const tabs = [
+  const tabs: {
+    value: Mode;
+    label: string;
+    icon: React.ReactNode;
+  }[] = [
     { value: "text", label: "Text", icon: <FileText size={18} /> },
     { value: "files", label: "Files", icon: <Folder size={18} /> },
     { value: "draw", label: "Draw", icon: <Pencil size={18} /> },
