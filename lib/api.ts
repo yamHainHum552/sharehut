@@ -18,14 +18,19 @@ export const api = async (
   const headers: Record<string, string> = {};
 
   // Guest identity headers
+  // Attach guest identity ONLY if no auth cookie
   if (typeof window !== "undefined") {
-    const guestOwnerToken = getGuestToken();
+    const hasAuthCookie = document.cookie.includes("token=");
 
-    if (guestOwnerToken) {
-      headers["x-guest-owner-token"] = guestOwnerToken;
-    } else {
-      headers["x-guest-session-id"] = getOrCreateGuestSession();
-      headers["x-guest-name"] = getOrCreateGuestName();
+    if (!hasAuthCookie) {
+      const guestOwnerToken = getGuestToken();
+
+      if (guestOwnerToken) {
+        headers["x-guest-owner-token"] = guestOwnerToken;
+      } else {
+        headers["x-guest-session-id"] = getOrCreateGuestSession();
+        headers["x-guest-name"] = getOrCreateGuestName();
+      }
     }
   }
 

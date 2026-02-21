@@ -14,6 +14,8 @@ import WorkspaceToolbar from "./WorkspaceToolbar";
 import TextWorkspace from "./workspace/TextWorkspace";
 import FileWorkspace from "./workspace/FilesWorkspace";
 import DrawWorkspace from "./workspace/DrawWorkspace";
+import PendingApproval from "../PendingApproval";
+import JoinRequests from "../JoinRequests";
 
 type WorkspaceMode = "text" | "files" | "draw";
 
@@ -46,7 +48,7 @@ export default function Editor({
   const [showSettings, setShowSettings] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
   const [joined, setJoined] = useState(false);
-
+  const [requestRefreshKey, setRequestRefreshKey] = useState(0);
   const [room, setRoom] = useState<RoomState>({
     isOwner: false,
     isReadOnly: false,
@@ -142,6 +144,10 @@ export default function Editor({
     const handleTextUpdate = (newText: string) => {
       setText(newText);
     };
+    const handleNewJoinRequest = () => {
+      // Incrementing this will trigger the useEffect inside JoinRequests.tsx
+      setRequestRefreshKey((prev) => prev + 1);
+    };
 
     const handleTypingUpdate = (list: any[]) => {
       setTypingUsers(list);
@@ -156,11 +162,28 @@ export default function Editor({
       router.push("/");
     };
 
+    // ✅ NEW: approval required
+    const handleApprovalRequired = () => {
+      router.push(`/room/${roomId}?code=${room.code}&pending=true`);
+    };
+
+    // ✅ OPTIONAL: real-time approval
+    const handleJoinApproved = ({ userId }: { userId: string }) => {
+      if (userId === room.currentUserId) {
+        router.replace(`/room/${roomId}?code=${room.code}`);
+      }
+    };
+
     socket.on("user-list", handleUserList);
     socket.on("text-update", handleTextUpdate);
     socket.on("typing-update", handleTypingUpdate);
     socket.on("room-settings-updated", handleRoomSettingsUpdated);
     socket.on("room-expired", handleRoomExpired);
+    socket.on("new-join-request", handleNewJoinRequest);
+
+    // 👇 ADD THESE
+    socket.on("approval-required", handleApprovalRequired);
+    socket.on("join-request-approved", handleJoinApproved);
 
     return () => {
       socket.off("user-list", handleUserList);
@@ -169,20 +192,19 @@ export default function Editor({
       socket.off("room-settings-updated", handleRoomSettingsUpdated);
       socket.off("room-expired", handleRoomExpired);
 
+      // 👇 CLEANUP
+      socket.off("approval-required", handleApprovalRequired);
+      socket.off("join-request-approved", handleJoinApproved);
+      socket.off("new-join-request", handleNewJoinRequest);
       socket.emit("leave-room");
     };
-  }, [router]);
-
+  }, [router, roomId, room.code, room.currentUserId]);
   /* -------------------------------------------------- */
   /*                       Pending                      */
   /* -------------------------------------------------- */
 
-  if (isPending && !joined) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Waiting for approval...
-      </div>
-    );
+  if (isPending) {
+    return <PendingApproval roomId={roomId} />;
   }
 
   /* -------------------------------------------------- */
@@ -204,10 +226,20 @@ export default function Editor({
             onOpenSettings={() => setShowSettings(true)}
             onOpenParticipants={() => setShowParticipants(true)}
           />
+          {room.isOwner && (
+            <JoinRequests roomId={roomId} refreshKey={requestRefreshKey} />
+          )}
 
           <RoomStatus room={room} />
 
-          <WorkspaceToolbar mode={mode} setMode={setMode} />
+          <div className="hidden md:block">
+            <WorkspaceToolbar mode={mode} setMode={setMode} />
+          </div>
+
+          {/* Mobile Bottom */}
+          <div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-950 border-t border-neutral-800 z-40">
+            <WorkspaceToolbar mode={mode} setMode={setMode} mobile />
+          </div>
 
           {mode === "text" && (
             <TextWorkspace

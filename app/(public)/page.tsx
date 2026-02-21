@@ -5,16 +5,22 @@ import { cookies } from "next/headers";
 import CookieBanner from "@/components/landing/CookieBanner";
 import QuickStart from "@/components/landing/QuickStart";
 import TestimonialsSection from "@/components/landing/Testimonials";
+
 export default async function LandingPage() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
+  const isLoggedIn = !!token;
+
   return (
     <main className="relative min-h-screen bg-neutral-950 text-white">
-      <LandingHero isLoggedIn={!!token} />
-      <QuickStart />
+      <LandingHero isLoggedIn={isLoggedIn} />
+
+      {/* 👇 Only show QuickStart if NOT logged in */}
+      {!isLoggedIn && <QuickStart />}
+
       <FeaturesSection />
-      <FooterCTA />
       <TestimonialsSection />
+      <FooterCTA />
       <CookieBanner />
     </main>
   );
