@@ -31,7 +31,7 @@ export const useRoomSocket = (roomId: string) => {
     return () => {
       socket.emit("leave-room", { roomId });
       socket.off();
-      socket.disconnect();
+      // socket.disconnect();
     };
   }, [roomId]);
 

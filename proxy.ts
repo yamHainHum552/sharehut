@@ -1,57 +1,55 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-/**
- * Routes configuration
- */
 const PROTECTED_ROUTES = ["/dashboard", "/myrooms", "/profile"];
+const ADMIN_ROUTE = "/admin";
 
-const AUTH_ROUTES = ["/login", "/register"];
+function decodeJwt(token: string) {
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => {
+          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+        })
+        .join(""),
+    );
 
-const GUEST_ONLY_ROUTES = ["/share"];
+    return JSON.parse(jsonPayload);
+  } catch {
+    return null;
+  }
+}
 
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const token = request.cookies.get("token")?.value;
 
-  if (pathname.startsWith("/room")) {
-    return NextResponse.next();
+  let role = null;
+
+  if (token) {
+    const payload = decodeJwt(token);
+    role = payload?.role || null;
   }
 
+  /* 🔒 ADMIN ROUTE PROTECTION */
+  if (pathname.startsWith(ADMIN_ROUTE)) {
+    if (role !== "superadmin") {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  /* 🔒 NORMAL PROTECTED ROUTES */
   if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }
 
-  if (AUTH_ROUTES.includes(pathname)) {
-    if (token) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-  }
-
-  if (GUEST_ONLY_ROUTES.some((route) => pathname.startsWith(route))) {
-    if (token) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
-    }
-  }
-
-  const response = NextResponse.next();
-
-  response.headers.set(
-    "Content-Security-Policy",
-    [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' 'inline-speculation-rules' https: data:",
-      "style-src 'self' 'unsafe-inline' https:",
-      "img-src 'self' data: https:",
-      "font-src 'self' data: https:",
-      "connect-src 'self' https: ws: wss: http: localhost:*",
-    ].join("; "),
-  );
-
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {

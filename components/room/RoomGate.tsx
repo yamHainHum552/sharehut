@@ -17,20 +17,31 @@ export default function RoomGate({ roomId, pending, code }: Props) {
 
   useEffect(() => {
     let mounted = true;
+    let retryTimeout: NodeJS.Timeout;
 
-    const checkAccess = async () => {
+    const checkAccess = async (retry = false) => {
       try {
-        // 🔥 SINGLE SOURCE OF TRUTH
         const res = await api(`/rooms/${roomId}/membership`, "GET");
 
         if (!mounted) return;
 
         setIsMember(res.isMember === true);
+        setChecking(false);
       } catch (err) {
         if (!mounted) return;
-        setIsMember(false);
-      } finally {
-        if (mounted) setChecking(false);
+
+        console.error("Membership check failed:", err);
+
+        // 🔥 Retry once after small delay (handles guest token race)
+        if (!retry) {
+          retryTimeout = setTimeout(() => {
+            checkAccess(true);
+          }, 300);
+        } else {
+          // After retry fails, then deny
+          setIsMember(false);
+          setChecking(false);
+        }
       }
     };
 
@@ -38,12 +49,13 @@ export default function RoomGate({ roomId, pending, code }: Props) {
 
     return () => {
       mounted = false;
+      if (retryTimeout) clearTimeout(retryTimeout);
     };
   }, [roomId]);
 
   /* -------------------- LOADING -------------------- */
 
-  if (checking) {
+  if (checking || isMember === null) {
     return (
       <div className="min-h-screen flex items-center justify-center text-neutral-400">
         Checking access…

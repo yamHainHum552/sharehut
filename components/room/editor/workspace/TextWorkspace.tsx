@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import Card from "@/components/ui/Card";
 import Button from "@/components/ui/Button";
 import { socket } from "@/lib/socket";
@@ -8,14 +8,17 @@ import { FileText, Copy } from "lucide-react";
 
 export default function TextWorkspace({ text, setText, roomId, room }: any) {
   const [copied, setCopied] = useState(false);
+
   const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const isTyping = useRef(false);
+  const lastSentValue = useRef<string>("");
 
   const isLocked = room.isReadOnly && !room.isOwner;
 
   /* ---------------- Typing Logic ---------------- */
 
-  const handleTyping = () => {
+  const handleTyping = useCallback(() => {
     if (isLocked) return;
 
     if (!isTyping.current) {
@@ -29,10 +32,46 @@ export default function TextWorkspace({ text, setText, roomId, room }: any) {
       socket.emit("typing-stop", { roomId });
       isTyping.current = false;
     }, 2000);
-  };
+  }, [roomId, isLocked]);
+
+  /* ---------------- Debounced Text Emit ---------------- */
+
+  const emitTextUpdate = useCallback(
+    (value: string) => {
+      if (isLocked) return;
+
+      // Prevent unnecessary emit if same value
+      if (lastSentValue.current === value) return;
+
+      socket.emit("text-update", { roomId, text: value });
+      lastSentValue.current = value;
+    },
+    [roomId, isLocked],
+  );
+
+  const handleChange = useCallback(
+    (value: string) => {
+      if (isLocked) return;
+
+      setText(value);
+      handleTyping();
+
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+
+      debounceRef.current = setTimeout(() => {
+        emitTextUpdate(value);
+      }, 80); // Smooth but controlled
+    },
+    [emitTextUpdate, handleTyping, isLocked, setText],
+  );
+
+  /* ---------------- Cleanup ---------------- */
 
   useEffect(() => {
     return () => {
+      if (typingTimeout.current) clearTimeout(typingTimeout.current);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+
       if (isTyping.current) {
         socket.emit("typing-stop", { roomId });
       }
@@ -96,7 +135,7 @@ export default function TextWorkspace({ text, setText, roomId, room }: any) {
         </div>
       </div>
 
-      {/* Editor Container */}
+      {/* Editor */}
       <div className="relative group">
         {isLocked && (
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center text-sm text-neutral-300 rounded-xl z-10">
@@ -108,16 +147,9 @@ export default function TextWorkspace({ text, setText, roomId, room }: any) {
           <textarea
             value={text}
             disabled={isLocked}
-            onChange={(e) => {
-              setText(e.target.value);
-              socket.emit("text-update", {
-                roomId,
-                text: e.target.value,
-              });
-              handleTyping();
-            }}
+            onChange={(e) => handleChange(e.target.value)}
             placeholder="Start typing your shared notes..."
-            className={`
+            className="
               w-full h-[60vh]
               p-6
               bg-neutral-950
@@ -129,12 +161,12 @@ export default function TextWorkspace({ text, setText, roomId, room }: any) {
               border border-neutral-800
               focus:border-transparent
               transition-all duration-200
-            `}
+            "
           />
         </div>
       </div>
 
-      {/* Footer Info */}
+      {/* Footer */}
       <div className="mt-4 text-xs text-neutral-500 flex justify-between">
         <span>
           {isLocked ? "Read-only mode enabled" : "You can edit this document"}

@@ -34,17 +34,9 @@ export default function FileWorkspace({
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  /* -------------------------------------------------- */
-  /*                  Permission Logic                  */
-  /* -------------------------------------------------- */
-
   const canUpload = useMemo(() => {
     return room?.isOwner || !room?.isReadOnly;
   }, [room]);
-
-  /* -------------------------------------------------- */
-  /*                    Fetch Files                     */
-  /* -------------------------------------------------- */
 
   useEffect(() => {
     const fetchFiles = async () => {
@@ -55,22 +47,14 @@ export default function FileWorkspace({
         console.error("Failed to fetch files");
       }
     };
-
     fetchFiles();
   }, [roomId]);
 
-  /* -------------------------------------------------- */
-  /*                    Socket Sync                     */
-  /* -------------------------------------------------- */
-
   useEffect(() => {
-    const handleFileAdded = (file: FileItem) => {
+    const handleFileAdded = (file: FileItem) =>
       setFiles((prev) => [...prev, file]);
-    };
-
-    const handleFileDeleted = ({ fileId }: { fileId: string }) => {
+    const handleFileDeleted = ({ fileId }: { fileId: string }) =>
       setFiles((prev) => prev.filter((f) => f.id !== fileId));
-    };
 
     socket.on("file-added", handleFileAdded);
     socket.on("file-deleted", handleFileDeleted);
@@ -81,22 +65,12 @@ export default function FileWorkspace({
     };
   }, []);
 
-  /* -------------------------------------------------- */
-  /*                      Upload                        */
-  /* -------------------------------------------------- */
-
   const uploadFile = async (file: File) => {
-    if (!canUpload) {
-      alert("Only the room owner can upload files.");
-      return;
-    }
-
+    if (!canUpload) return;
     try {
       setUploading(true);
-
       const formData = new FormData();
       formData.append("file", file);
-
       await api(`/files/${roomId}`, "POST", formData, true);
     } catch (err: any) {
       alert(err?.error || "Upload failed");
@@ -105,31 +79,15 @@ export default function FileWorkspace({
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return;
-    uploadFile(e.target.files[0]);
-  };
-
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     if (!canUpload) return;
-
     e.preventDefault();
     setDragActive(false);
-
-    if (e.dataTransfer.files?.length) {
-      uploadFile(e.dataTransfer.files[0]);
-    }
+    if (e.dataTransfer.files?.length) uploadFile(e.dataTransfer.files[0]);
   };
 
-  /* -------------------------------------------------- */
-  /*                      Delete                        */
-  /* -------------------------------------------------- */
-
   const deleteFile = async (fileId: string) => {
-    if (!room?.isOwner) return;
-
-    if (!confirm("Delete this file?")) return;
-
+    if (!room?.isOwner || !confirm("Delete this file?")) return;
     try {
       await api(`/files/${fileId}`, "DELETE");
     } catch {
@@ -137,128 +95,109 @@ export default function FileWorkspace({
     }
   };
 
-  /* -------------------------------------------------- */
-  /*                      Helpers                       */
-  /* -------------------------------------------------- */
-
   const formatSize = (bytes: number) => {
     const kb = bytes / 1024;
-    if (kb < 1024) return `${kb.toFixed(1)} KB`;
-    return `${(kb / 1024).toFixed(1)} MB`;
+    return kb < 1024 ? `${kb.toFixed(1)} KB` : `${(kb / 1024).toFixed(1)} MB`;
   };
 
   const getIcon = (format: string) => {
     if (["png", "jpg", "jpeg", "webp"].includes(format)) return "🖼️";
     if (format === "pdf") return "📕";
-    if (format === "zip") return "🗜️";
     return "📄";
   };
 
-  const isImage = (format: string) =>
-    ["png", "jpg", "jpeg", "webp"].includes(format);
-
   const getFileName = (url: string) => url.split("/").pop() || "file";
 
-  const downloadFile = (file: FileItem) => {
-    const downloadUrl = file.url.replace("/upload/", "/upload/fl_attachment/");
-
-    const link = document.createElement("a");
-    link.href = downloadUrl;
-    link.download = getFileName(file.url);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  /* -------------------------------------------------- */
-  /*                       Render                       */
-  /* -------------------------------------------------- */
-
   return (
-    <Card>
-      {/* Upload Zone */}
+    <Card className="p-0 sm:p-4 border-none sm:border bg-transparent sm:bg-neutral-950">
+      {/* Responsive Upload Zone */}
       <div
         onDragOver={(e) => {
-          if (!canUpload) return;
-          e.preventDefault();
-          setDragActive(true);
+          if (canUpload) {
+            e.preventDefault();
+            setDragActive(true);
+          }
         }}
         onDragLeave={() => setDragActive(false)}
         onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-xl p-8 text-center transition ${
+        className={`border-2 border-dashed rounded-xl p-6 sm:p-10 text-center transition flex flex-col items-center justify-center ${
           !canUpload
-            ? "border-neutral-800 bg-neutral-950 opacity-50 cursor-not-allowed"
+            ? "border-neutral-800 bg-neutral-950/50 opacity-60 cursor-not-allowed"
             : dragActive
               ? "border-purple-500 bg-purple-500/10"
-              : "border-neutral-700 bg-neutral-900"
+              : "border-neutral-800 bg-neutral-900/50"
         }`}
       >
-        <p className="text-neutral-400 mb-4">
+        <p className="text-sm sm:text-base text-neutral-400 mb-4 max-w-xs mx-auto">
           {canUpload
             ? "Drag & drop files here or click to upload"
-            : "Only the room owner can upload files"}
+            : "Only authorized users can upload files"}
         </p>
 
         <Button
+          className="w-full sm:w-auto px-8"
           onClick={() => canUpload && fileInputRef.current?.click()}
           disabled={!canUpload || uploading}
         >
-          {uploading ? "Uploading..." : "Upload File"}
+          {uploading ? "Uploading..." : "Select File"}
         </Button>
 
-        {canUpload && (
-          <input
-            ref={fileInputRef}
-            type="file"
-            hidden
-            onChange={handleFileSelect}
-          />
-        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          hidden
+          onChange={(e) => e.target.files?.[0] && uploadFile(e.target.files[0])}
+        />
       </div>
 
-      {/* File List */}
-      <div className="mt-8 space-y-4">
+      {/* Responsive File List */}
+      <div className="mt-6 grid grid-cols-1 gap-3">
         {files.length === 0 && (
-          <div className="text-neutral-500 text-sm text-center">
-            No files uploaded yet
+          <div className="py-10 text-neutral-500 text-sm text-center italic">
+            No files available in this room
           </div>
         )}
 
         {files.map((file) => (
           <div
             key={file.id}
-            className="flex items-center justify-between bg-neutral-900 rounded-xl p-4 border border-neutral-800 hover:border-neutral-700 transition"
+            className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-neutral-900/40 rounded-xl p-4 border border-neutral-800 gap-4 hover:bg-neutral-900/60 transition"
           >
-            <div className="flex items-center gap-4">
-              <div className="text-2xl">{getIcon(file.format)}</div>
-
-              <div>
+            <div className="flex items-center gap-3 w-full sm:w-auto overflow-hidden">
+              <div className="text-xl sm:text-2xl shrink-0">
+                {getIcon(file.format)}
+              </div>
+              <div className="min-w-0 flex-1">
                 <button
                   onClick={() => {
-                    if (isImage(file.format)) {
+                    if (["png", "jpg", "jpeg", "webp"].includes(file.format))
                       setPreviewFile(file);
-                    } else if (file.format === "pdf") {
-                      setPdfFile(file);
-                    } else {
-                      window.open(file.url, "_blank", "noopener,noreferrer");
-                    }
+                    else if (file.format === "pdf") setPdfFile(file);
+                    else window.open(file.url, "_blank");
                   }}
-                  className="text-white hover:underline text-sm text-left"
+                  className="text-white hover:text-purple-400 font-medium text-sm truncate block w-full text-left transition-colors"
                 >
                   {getFileName(file.url)}
                 </button>
-
-                <div className="text-xs text-neutral-500">
-                  {formatSize(file.size)}
+                <div className="text-[10px] sm:text-xs text-neutral-500 uppercase tracking-wider">
+                  {file.format} • {formatSize(file.size)}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <Button
                 variant="secondary"
-                className="text-xs px-3 py-1"
-                onClick={() => downloadFile(file)}
+                className="flex-1 sm:flex-none text-xs h-9"
+                onClick={() => {
+                  const link = document.createElement("a");
+                  link.href = file.url.replace(
+                    "/upload/",
+                    "/upload/fl_attachment/",
+                  );
+                  link.download = getFileName(file.url);
+                  link.click();
+                }}
               >
                 Download
               </Button>
@@ -266,7 +205,7 @@ export default function FileWorkspace({
               {room?.isOwner && (
                 <Button
                   variant="danger"
-                  className="text-xs px-3 py-1"
+                  className="flex-1 sm:flex-none text-xs h-9"
                   onClick={() => deleteFile(file.id)}
                 >
                   Delete
@@ -277,16 +216,22 @@ export default function FileWorkspace({
         ))}
       </div>
 
+      {/* Image Preview Modal */}
       {previewFile && (
         <div
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[9999]"
+          className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-[9999] p-4"
           onClick={() => setPreviewFile(null)}
         >
-          <img
-            src={previewFile.url}
-            alt="Preview"
-            className="max-h-[85vh] max-w-[95vw] object-contain rounded-xl"
-          />
+          <div className="relative group">
+            <button className="absolute -top-10 right-0 text-white text-sm bg-neutral-800 px-3 py-1 rounded-full">
+              Close
+            </button>
+            <img
+              src={previewFile.url}
+              alt="Preview"
+              className="max-h-[80vh] max-w-full object-contain rounded-lg shadow-2xl"
+            />
+          </div>
         </div>
       )}
 

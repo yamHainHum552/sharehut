@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { setGuestToken, getGuestToken } from "@/lib/guest";
-import { refreshSocketAuth } from "@/lib/socketAuth";
+// import { refreshSocketAuth } from "@/lib/socketAuth";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Plus, LogIn } from "lucide-react";
@@ -36,7 +36,7 @@ export default function QuickStart() {
       });
 
       setGuestToken(res.ownerToken);
-      refreshSocketAuth();
+      // refreshSocketAuth();
 
       router.push(`/room/${res.roomId}?code=${res.roomCode}`);
     } catch (err: any) {
@@ -62,7 +62,7 @@ export default function QuickStart() {
         roomCode: roomCode.toUpperCase(),
       });
 
-      refreshSocketAuth();
+      // refreshSocketAuth();
 
       if (res.requiresApproval) {
         router.push(`/room/${res.roomId}?code=${roomCode}&pending=true`);

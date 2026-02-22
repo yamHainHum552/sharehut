@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { setGuestToken } from "@/lib/guest";
-import { refreshSocketAuth } from "@/lib/socketAuth";
+// import { refreshSocketAuth } from "@/lib/socketAuth";
 import { getGuestToken } from "@/lib/guest";
 
 import Card from "@/components/ui/Card";
@@ -20,7 +20,6 @@ export default function SharePage() {
 
   const [creating, setCreating] = useState(false);
   const [joining, setJoining] = useState(false);
-
   const createGuestRoom = async () => {
     if (!roomName.trim()) {
       setError("Room name is required");
@@ -31,34 +30,24 @@ export default function SharePage() {
     setError("");
 
     try {
-      const existingToken = getGuestToken();
+      // 🔥 IMPORTANT: remove old token BEFORE creating new room
+      localStorage.removeItem("guestOwnerToken");
 
       const res = await api("/rooms/guest", "POST", {
         name: roomName.trim(),
-        guestOwnerToken: getGuestToken() || null,
+        guestOwnerToken: null,
       });
 
-      setGuestToken(res.ownerToken); // always trust backend
-      refreshSocketAuth();
+      // Always overwrite
+      setGuestToken(res.ownerToken);
+
       router.push(`/room/${res.roomId}?code=${res.roomCode}`);
     } catch (err: any) {
-      if (err?.error === "Guest users can only create one active room.") {
-        setError("You already have an active guest room.");
-
-        // 🔥 Redirect to login after 1.5s
-        setTimeout(() => {
-          router.push("/login");
-        }, 1500);
-
-        return;
-      }
-
       setError(err?.error || "Failed to create room");
     } finally {
       setCreating(false);
     }
   };
-
   const joinRoom = async () => {
     if (!roomCode.trim()) {
       setError("Room code is required");
@@ -73,7 +62,7 @@ export default function SharePage() {
         roomCode: roomCode.toUpperCase(),
       });
 
-      refreshSocketAuth();
+      // refreshSocketAuth();
 
       if (res.requiresApproval) {
         router.push(`/room/${res.roomId}?code=${roomCode}&pending=true`);

@@ -1,4 +1,4 @@
-import { refreshSocketAuth } from "@/lib/socketAuth";
+// import { refreshSocketAuth } from "@/lib/socketAuth";
 import { BACKEND_URL } from "@/config/constants";
 
 export const logout = async () => {
@@ -15,7 +15,7 @@ export const logout = async () => {
     console.error("Logout error:", err);
   } finally {
     // Reset socket auth state
-    refreshSocketAuth();
+    // refreshSocketAuth();
 
     // Force full page reload to reset middleware + server state
     window.location.href = "/login";

@@ -14,23 +14,16 @@ export const api = async (
   isFormData: boolean = false,
 ) => {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-
   const headers: Record<string, string> = {};
 
-  // Guest identity headers
-  // Attach guest identity ONLY if no auth cookie
   if (typeof window !== "undefined") {
-    const hasAuthCookie = document.cookie.includes("token=");
+    const guestOwnerToken = getGuestToken();
 
-    if (!hasAuthCookie) {
-      const guestOwnerToken = getGuestToken();
-
-      if (guestOwnerToken) {
-        headers["x-guest-owner-token"] = guestOwnerToken;
-      } else {
-        headers["x-guest-session-id"] = getOrCreateGuestSession();
-        headers["x-guest-name"] = getOrCreateGuestName();
-      }
+    if (guestOwnerToken) {
+      headers["x-guest-owner-token"] = guestOwnerToken;
+    } else {
+      headers["x-guest-session-id"] = getOrCreateGuestSession();
+      headers["x-guest-name"] = getOrCreateGuestName();
     }
   }
 
@@ -40,7 +33,7 @@ export const api = async (
 
   const res = await fetch(`${API_URL}${normalizedPath}`, {
     method,
-    credentials: "include",
+    credentials: "include", // JWT cookie still sent automatically
     headers,
     body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
   });

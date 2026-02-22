@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { socket } from "@/lib/socket";
+import { initializeSocketAuth, socket } from "@/lib/socket";
 import { api } from "@/lib/api";
-import { refreshSocketAuth } from "@/lib/socketAuth";
 
 import RoomHeader from "./RoomHeader";
 import RoomStatus from "./RoomStatus";
@@ -47,8 +46,8 @@ export default function Editor({
   const [typingUsers, setTypingUsers] = useState<any[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
-  const [joined, setJoined] = useState(false);
   const [requestRefreshKey, setRequestRefreshKey] = useState(0);
+
   const [room, setRoom] = useState<RoomState>({
     isOwner: false,
     isReadOnly: false,
@@ -87,43 +86,34 @@ export default function Editor({
   }, [roomId, router]);
 
   /* -------------------------------------------------- */
-  /*                 Stable Join Function               */
-  /* -------------------------------------------------- */
-
-  const emitJoin = useCallback(() => {
-    socket.emit("join-room", { roomId });
-  }, [roomId]);
-
-  /* -------------------------------------------------- */
-  /*              Join Room (Connection Safe)           */
+  /*            Stable Socket Connection + Join        */
   /* -------------------------------------------------- */
 
   useEffect(() => {
     if (isPending) return;
 
-    refreshSocketAuth();
+    initializeSocketAuth();
 
-    socket.once("connect", emitJoin);
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    const joinRoom = () => {
+      socket.emit("join-room", { roomId });
+    };
+
+    socket.on("connect", joinRoom);
+
+    // If already connected
+    if (socket.connected) {
+      joinRoom();
+    }
 
     return () => {
-      socket.off("connect", emitJoin);
+      socket.off("connect", joinRoom);
+      socket.emit("leave-room");
     };
-  }, [emitJoin, isPending]);
-  /* -------------------------------------------------- */
-  /*           Auto Re-Join On Reconnect (Important)   */
-  /* -------------------------------------------------- */
-
-  useEffect(() => {
-    const handleReconnect = () => {
-      emitJoin();
-    };
-
-    socket.on("reconnect", handleReconnect);
-
-    return () => {
-      socket.off("reconnect", handleReconnect);
-    };
-  }, [emitJoin]);
+  }, [roomId, isPending]);
 
   /* -------------------------------------------------- */
   /*                Socket Event Listeners              */
@@ -132,15 +122,10 @@ export default function Editor({
   useEffect(() => {
     const handleUserList = (list: any[]) => {
       setUsers(list);
-      setJoined(true);
     };
 
     const handleTextUpdate = (newText: string) => {
       setText(newText);
-    };
-    const handleNewJoinRequest = () => {
-      // Incrementing this will trigger the useEffect inside JoinRequests.tsx
-      setRequestRefreshKey((prev) => prev + 1);
     };
 
     const handleTypingUpdate = (list: any[]) => {
@@ -156,16 +141,18 @@ export default function Editor({
       router.push("/");
     };
 
-    // ✅ NEW: approval required
     const handleApprovalRequired = () => {
       router.push(`/room/${roomId}?code=${room.code}&pending=true`);
     };
 
-    // ✅ OPTIONAL: real-time approval
     const handleJoinApproved = ({ userId }: { userId: string }) => {
       if (userId === room.currentUserId) {
         router.replace(`/room/${roomId}?code=${room.code}`);
       }
+    };
+
+    const handleNewJoinRequest = () => {
+      setRequestRefreshKey((prev) => prev + 1);
     };
 
     socket.on("user-list", handleUserList);
@@ -173,11 +160,9 @@ export default function Editor({
     socket.on("typing-update", handleTypingUpdate);
     socket.on("room-settings-updated", handleRoomSettingsUpdated);
     socket.on("room-expired", handleRoomExpired);
-    socket.on("new-join-request", handleNewJoinRequest);
-
-    // 👇 ADD THESE
     socket.on("approval-required", handleApprovalRequired);
     socket.on("join-request-approved", handleJoinApproved);
+    socket.on("new-join-request", handleNewJoinRequest);
 
     return () => {
       socket.off("user-list", handleUserList);
@@ -185,12 +170,9 @@ export default function Editor({
       socket.off("typing-update", handleTypingUpdate);
       socket.off("room-settings-updated", handleRoomSettingsUpdated);
       socket.off("room-expired", handleRoomExpired);
-
-      // 👇 CLEANUP
       socket.off("approval-required", handleApprovalRequired);
       socket.off("join-request-approved", handleJoinApproved);
       socket.off("new-join-request", handleNewJoinRequest);
-      socket.emit("leave-room");
     };
   }, [router, roomId, room.code, room.currentUserId]);
   /* -------------------------------------------------- */

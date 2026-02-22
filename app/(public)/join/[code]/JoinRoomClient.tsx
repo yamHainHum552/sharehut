@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { refreshSocketAuth } from "@/lib/socketAuth";
+// import { refreshSocketAuth } from "@/lib/socketAuth";
 
 export default function JoinRoomClient({ code }: { code: string }) {
   const router = useRouter();
@@ -16,7 +16,7 @@ export default function JoinRoomClient({ code }: { code: string }) {
           roomCode: code.toUpperCase(),
         });
 
-        refreshSocketAuth();
+        // refreshSocketAuth();
 
         if (res.requiresApproval) {
           router.replace(`/room/${res.roomId}?code=${code}&pending=true`);

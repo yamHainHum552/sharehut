@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { BACKEND_URL } from "@/config/constants";
-import { refreshSocketAuth } from "@/lib/socketAuth";
+// import { refreshSocketAuth } from "@/lib/socketAuth";
 import { api } from "@/lib/api";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -25,13 +25,32 @@ export default function LoginPage() {
 
     try {
       const res = await api("/auth/login", "POST", { email, password });
-      console.log(res);
 
-      if (res.success) {
-        refreshSocketAuth();
-        window.location.href = "/dashboard";
-      } else {
+      if (!res.success) {
         setError(res.error || "Login failed");
+        return;
+      }
+
+      // Refresh socket auth after cookie is set
+      // refreshSocketAuth();
+
+      // 🔥 Fetch current user info (role)
+      const me = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/me`,
+        { credentials: "include" },
+      );
+
+      if (!me.ok) {
+        window.location.href = "/dashboard";
+        return;
+      }
+
+      const user = await me.json();
+
+      if (user.role === "superadmin") {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/dashboard";
       }
     } catch (err: any) {
       setError(err?.error || "Login failed");
