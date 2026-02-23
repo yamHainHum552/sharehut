@@ -39,7 +39,7 @@ export default function Editor({
   const searchParams = useSearchParams();
   const router = useRouter();
   const isPending = searchParams.get("pending") === "true";
-
+  const [expired, setExpired] = useState(false);
   const [mode, setMode] = useState<WorkspaceMode>("text");
   const [text, setText] = useState("");
   const [users, setUsers] = useState<any[]>([]);
@@ -137,8 +137,7 @@ export default function Editor({
     };
 
     const handleRoomExpired = () => {
-      alert("Room expired");
-      router.push("/");
+      setExpired(true);
     };
 
     const handleApprovalRequired = () => {
@@ -257,6 +256,34 @@ export default function Editor({
         isOpen={showParticipants}
         onClose={() => setShowParticipants(false)}
       />
+      {/* {expired && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 w-[90%] max-w-md text-center space-y-4">
+            <h3 className="text-xl font-semibold text-white">Room Expired</h3>
+
+            <p className="text-sm text-neutral-400">
+              This room has expired. Login to create rooms with longer duration
+              and better control.
+            </p>
+
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => router.push("/")}
+                className="px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition"
+              >
+                Home
+              </button>
+
+              <button
+                onClick={() => router.push(`/login?redirect=/room/${roomId}`)}
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 transition"
+              >
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      )} */}
     </div>
   );
 }

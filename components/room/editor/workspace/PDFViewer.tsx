@@ -19,24 +19,32 @@ export default function PDFViewer({
   const [loading, setLoading] = useState(true);
 
   /* ---------------- Load PDF ---------------- */
-
   useEffect(() => {
     const loadPdf = async () => {
       setLoading(true);
 
-      const pdfjs = await import("pdfjs-dist");
+      // Load pdf.js script dynamically
+      const script = document.createElement("script");
+      script.src =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+      script.async = true;
 
-      pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-        "pdfjs-dist/build/pdf.worker.min.js",
-        import.meta.url,
-      ).toString();
+      script.onload = async () => {
+        // @ts-ignore
+        const pdfjsLib = window["pdfjsLib"];
 
-      const loadingTask = pdfjs.getDocument(fileUrl);
-      const pdf = await loadingTask.promise;
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-      setPdfDoc(pdf);
-      setNumPages(pdf.numPages);
-      setLoading(false);
+        const loadingTask = pdfjsLib.getDocument(fileUrl);
+        const pdf = await loadingTask.promise;
+
+        setPdfDoc(pdf);
+        setNumPages(pdf.numPages);
+        setLoading(false);
+      };
+
+      document.body.appendChild(script);
     };
 
     loadPdf();
