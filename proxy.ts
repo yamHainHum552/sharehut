@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 
 const PROTECTED_ROUTES = ["/dashboard", "/myrooms", "/profile"];
 const ADMIN_ROUTE = "/admin";
+const GUEST_ROUTE = "/share";
 
 function decodeJwt(token: string) {
   try {
@@ -40,6 +41,9 @@ export default function proxy(request: NextRequest) {
     if (role !== "superadmin") {
       return NextResponse.redirect(new URL("/", request.url));
     }
+  }
+  if (pathname.startsWith("/share") && token) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   /* 🔒 NORMAL PROTECTED ROUTES */

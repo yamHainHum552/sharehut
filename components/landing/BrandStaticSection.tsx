@@ -11,9 +11,9 @@ interface Stat {
 }
 
 const stats: Stat[] = [
-  { label: "Active Rooms", value: 120, suffix: "+", icon: Activity },
-  { label: "Users Joined", value: 1800, suffix: "+", icon: Users },
-  { label: "Files Shared", value: 7500, suffix: "+", icon: Folder },
+  { label: "Active Rooms", value: 11, suffix: "+", icon: Activity },
+  { label: "Users Joined", value: 15, suffix: "+", icon: Users },
+  { label: "Files Shared", value: 100, suffix: "+", icon: Folder },
   { label: "Uptime", value: 99.9, suffix: "%", icon: Server },
 ];
 
