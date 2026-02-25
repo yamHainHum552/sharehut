@@ -11,17 +11,17 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
   const router = useRouter();
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden px-6">
+    <section className="relative min-h-screen flex items-center overflow-hidden px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
       <NetworkBackground />
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
         {/* LEFT SIDE — TEXT */}
-        <div className="text-left">
+        <div className="text-center lg:text-left">
           <motion.h1
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="text-5xl md:text-6xl font-extrabold leading-tight"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight"
           >
             Share Text & Code
             <br />
@@ -35,7 +35,7 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
             initial="hidden"
             animate="visible"
             custom={0.2}
-            className="mt-6 max-w-xl text-lg text-neutral-400"
+            className="mt-6 max-w-xl mx-auto lg:mx-0 text-base sm:text-lg text-neutral-400"
           >
             Create private rooms, approve participants, and collaborate in
             real-time. No friction. No noise. Just instant sharing.
@@ -46,9 +46,13 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
             initial="hidden"
             animate="visible"
             custom={0.4}
-            className="mt-10 flex flex-wrap gap-4"
+            className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4"
           >
-            <Button size="lg" onClick={() => router.push("/share")}>
+            <Button
+              size="lg"
+              className="w-full sm:w-auto"
+              onClick={() => router.push("/share")}
+            >
               Start Sharing
             </Button>
 
@@ -56,6 +60,7 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
               <Button
                 variant="primary"
                 size="lg"
+                className="w-full sm:w-auto"
                 onClick={() => router.push("/dashboard")}
               >
                 Dashboard
@@ -64,6 +69,7 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
               <Button
                 variant="secondary"
                 size="lg"
+                className="w-full sm:w-auto"
                 onClick={() => router.push("/login")}
               >
                 Sign In
@@ -76,7 +82,7 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
             initial="hidden"
             animate="visible"
             custom={0.6}
-            className="mt-6 text-sm text-neutral-500"
+            className="mt-6 text-xs sm:text-sm text-neutral-500"
           >
             No signup required for temporary rooms.
           </motion.p>
@@ -88,9 +94,11 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
           initial="hidden"
           animate="visible"
           custom={0.3}
-          className="hidden md:block"
+          className="block lg:block"
         >
-          <DemoPreview />
+          <div className="mt-12 lg:mt-0 max-w-md sm:max-w-lg lg:max-w-none mx-auto">
+            <DemoPreview />
+          </div>
         </motion.div>
       </div>
     </section>

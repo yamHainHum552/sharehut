@@ -15,20 +15,46 @@ export const metadata: Metadata = {
   },
 
   description:
-    "ShareHut lets you create secure real-time collaboration rooms for live text editing, file sharing, and online whiteboard drawing. No signup required. Private, fast, and temporary workspace sharing.",
+    "Share text online instantly with ShareHut. Create secure real-time collaboration rooms for live text editing, code sharing, file sharing, and online whiteboard drawing. No signup required.",
 
   applicationName: "ShareHut",
 
   keywords: [
-    "real-time collaboration",
-    "online whiteboard",
-    "live text sharing",
-    "instant file sharing",
-    "temporary collaboration rooms",
-    "secure workspace sharing",
-    "real-time drawing tool",
-    "private collaboration tool",
-    "no signup collaboration",
+    // Core High-Intent
+    "share text online",
+    "text share online",
+    "online text sharing",
+    "share code online",
+    "code share online",
+    "real time text editor",
+    "online collaborative editor",
+    "live text collaboration",
+    "temporary text sharing",
+    "instant text sharing",
+
+    // Problem-Based Searches
+    "how to share text online",
+    "share notes online instantly",
+    "share code with friends online",
+    "online text editor no signup",
+    "temporary online workspace",
+    "private collaboration room",
+
+    // Whiteboard + File Angle
+    "online whiteboard collaboration",
+    "draw together online",
+    "real time drawing tool",
+    "share files instantly online",
+    "temporary file sharing tool",
+
+    // Tool Intent
+    "free online text editor",
+    "real time code editor online",
+    "paste text online",
+    "quick text sharing tool",
+    "instant collaboration tool",
+
+    // Brand
     "ShareHut",
   ],
 
